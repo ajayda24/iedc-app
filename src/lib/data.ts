@@ -109,6 +109,105 @@ export const STATS = [
   { value: "120+", label: "Campuses", icon: "compass", tint: "var(--lavender)" },
 ];
 
+export type TeamMember = {
+  name: string;
+  position: string;
+  profile_image: string;
+  tint: string;
+  /** the tutor / nodal coordinator gets a highlighted card */
+  lead?: boolean;
+};
+
+// Drop the matching images into /public/team/ (e.g. /public/team/arjun.jpg).
+// If an image is missing the card gracefully shows the member's initials.
+export const TEAM: TeamMember[] = [
+  {
+    name: "Chithra Valassery",
+    position: "IEDC Tutor Coordinator",
+    profile_image: "/team/chithra.jpg",
+    tint: "var(--indigo)",
+    lead: true,
+  },
+  {
+    name: "Ajay Daniel Trevor",
+    position: "Student Lead",
+    profile_image: "/team/student_lead.jpg",
+    tint: "var(--blue)",
+  },
+  {
+    name: "Devika C",
+    position: "Student Lead",
+    profile_image: "/team/student_lead_female.jpg",
+    tint: "var(--sky)",
+  },
+  {
+    name: "Navami E",
+    position: "Operative Lead",
+    profile_image: "/team/operative_lead.jpg",
+    tint: "var(--mint)",
+  },
+  {
+    name: "Amjad Khan M P",
+    position: "Startup Development Lead",
+    profile_image: "/team/startup_development_lead.jpg",
+    tint: "var(--peach)",
+  },
+  {
+    name: "Nijin Raj T",
+    position: "Finance Lead",
+    profile_image: "/team/finance_lead.jpg",
+    tint: "var(--lavender)",
+  },
+  {
+    name: "Dilkush Ameen",
+    position: "Technical Lead",
+    profile_image: "/team/technical_lead.jpg",
+    tint: "var(--blue)",
+  },
+  {
+    name: "Trishaa B",
+    position: "Women Entrepreneurship Lead",
+    profile_image: "/team/women_entrepreneurship_lead.jpg",
+    tint: "var(--lavender)",
+  },
+  {
+    name: "Gopika P",
+    position: "Creative Lead",
+    profile_image: "/team/creative_lead.jpg",
+    tint: "var(--mint)",
+  },
+  {
+    name: "Keerthi Mohan",
+    position: "Creative Co-Lead",
+    profile_image: "/team/creative_co_lead.jpg",
+    tint: "var(--peach)",
+  },
+  {
+    name: "Ajin K Reji",
+    position: "Community Lead",
+    profile_image: "/team/community_lead.jpg",
+    tint: "var(--sky)",
+  },
+  {
+    name: "Eswal Narayanan",
+    position: "Marketing Lead",
+    profile_image: "/team/marketing_lead.jpg",
+    tint: "var(--blue)",
+  },
+  {
+    name: "Muhammed Shanif V",
+    position: "IPR & Research Lead",
+    profile_image: "/team/ipr_&_research_lead.jpg",
+    tint: "var(--peach)",
+  },
+  {
+    name: "Muhammed Zahir M",
+    position: "IPR & Research Co-Lead",
+    profile_image: "/team/ipr_&_research_co_lead.jpg",
+    tint: "var(--mint)",
+  },
+];
+
 export const COMMUNITY = [
   {
     quote:

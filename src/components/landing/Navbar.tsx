@@ -39,8 +39,8 @@ export default function Navbar() {
           <a href="#features" className="transition-colors hover:text-ink">
             Features
           </a>
-          <a href="#community" className="transition-colors hover:text-ink">
-            Community
+          <a href="#team" className="transition-colors hover:text-ink">
+            Team
           </a>
         </div> */}
 

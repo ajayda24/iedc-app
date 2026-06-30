@@ -59,7 +59,7 @@ export default function CTA() {
             <a href="#about" className="hover:text-ink">About</a>
             <a href="#features" className="hover:text-ink">Features</a>
             <a href="#journey" className="hover:text-ink">Journey</a>
-            <a href="#community" className="hover:text-ink">Community</a>
+            <a href="#team" className="hover:text-ink">Team</a>
           </div> */}
           <p className="text-xs text-muted">
             © {new Date().getFullYear()} IEDC Hub. Build. Innovate. Compete.
