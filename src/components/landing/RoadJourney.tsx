@@ -54,22 +54,36 @@ export default function RoadJourney() {
       document.querySelectorAll<HTMLElement>("[data-station]")
     );
 
-    let lastKey = -1;
     let raf = 0;
     let activeEl: HTMLElement | null = null;
+    let lastScrollY = window.scrollY || window.pageYOffset;
+    let facing = 1; // 1 = travelling down the road, -1 = reversing up
+
+    // eased ("current") car state, lerped toward the target each frame so a
+    // sudden viewport-height change (mobile URL bar) glides instead of jumps
+    let curX = 0;
+    let curY = 0;
+    let curAngle = 0;
+    let inited = false;
+    const POS_EASE = 0.2;
+    const ROT_EASE = 0.2;
 
     const update = () => {
       raf = requestAnimationFrame(update);
 
-      const winH = window.innerHeight;
+      // Use the visual viewport height when available so the mobile URL-bar
+      // show/hide is handled consistently. Fall back to innerHeight on desktop.
+      const winH = window.visualViewport?.height ?? window.innerHeight;
       const docH = document.documentElement.scrollHeight;
       const scrollY = window.scrollY || window.pageYOffset;
       const carScreenY = CAR_LINE * winH;
       const targetDocY = scrollY + carScreenY;
 
-      const key = Math.round(targetDocY) + docH * 1e6;
-      if (key === lastKey) return;
-      lastKey = key;
+      // track travel direction from real scroll movement only
+      const dScroll = scrollY - lastScrollY;
+      if (dScroll > 0.5) facing = 1;
+      else if (dScroll < -0.5) facing = -1;
+      lastScrollY = scrollY;
 
       // map document-y -> viewBox-y (svg height == docH, preserveAspectRatio none)
       const yVb = (targetDocY / docH) * ROAD_H;
@@ -84,9 +98,25 @@ export default function RoadJourney() {
       const s1 = p1.matrixTransform(ctm);
       const s2 = p2.matrixTransform(ctm);
 
-      const angle = (Math.atan2(s2.y - s1.y, s2.x - s1.x) * 180) / Math.PI + 90;
+      // tangent points down the road; flip it 180° when reversing upward
+      let targetAngle =
+        (Math.atan2(s2.y - s1.y, s2.x - s1.x) * 180) / Math.PI + 90;
+      if (facing < 0) targetAngle += 180;
 
-      car.style.transform = `translate(${s1.x}px, ${s1.y}px) translate(-50%, -50%) rotate(${angle}deg)`;
+      if (!inited) {
+        curX = s1.x;
+        curY = s1.y;
+        curAngle = targetAngle;
+        inited = true;
+      } else {
+        curX += (s1.x - curX) * POS_EASE;
+        curY += (s1.y - curY) * POS_EASE;
+        // rotate via the shortest path so the flip turns cleanly
+        const da = ((targetAngle - curAngle + 540) % 360) - 180;
+        curAngle += da * ROT_EASE;
+      }
+
+      car.style.transform = `translate(${curX}px, ${curY}px) translate(-50%, -50%) rotate(${curAngle}deg)`;
       if (car.style.opacity !== "1") car.style.opacity = "1";
 
       // section highlight: whichever station straddles the car line
@@ -101,13 +131,14 @@ export default function RoadJourney() {
       if (next !== activeEl) {
         activeEl?.classList.remove("is-active");
         next?.classList.add("is-active");
+        // sticky: once a section's content has been revealed, keep it revealed
+        next?.classList.add("is-seen");
         activeEl = next;
       }
     };
 
     const onResize = () => {
       buildSamples();
-      lastKey = -1;
     };
 
     window.addEventListener("resize", onResize);

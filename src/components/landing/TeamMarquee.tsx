@@ -46,7 +46,7 @@ function Avatar({ member }: { member: TeamMember }) {
 function Card({ member }: { member: TeamMember }) {
   return (
     <article
-      className={`group relative h-[340px] w-[248px] shrink-0 overflow-hidden rounded-[26px] border transition-transform duration-300 will-change-transform hover:-translate-y-1.5 sm:h-[380px] sm:w-[272px] ${
+      className={`group relative h-[260px] w-[180px] shrink-0 overflow-hidden rounded-[22px] border transition-transform duration-300 will-change-transform hover:-translate-y-1.5 sm:h-[380px] sm:w-[272px] sm:rounded-[26px] ${
         member.lead
           ? "border-transparent"
           : "border-white/70 bg-white/40 shadow-[0_24px_60px_-30px_rgba(40,52,92,0.5)]"
@@ -64,7 +64,9 @@ function Card({ member }: { member: TeamMember }) {
     >
       <div
         className={`relative h-full w-full overflow-hidden ${
-          member.lead ? "rounded-[23px]" : "rounded-[24px]"
+          member.lead
+            ? "rounded-[19px] sm:rounded-[23px]"
+            : "rounded-[20px] sm:rounded-[24px]"
         }`}
       >
         {/* photo */}
@@ -84,19 +86,21 @@ function Card({ member }: { member: TeamMember }) {
 
         {/* tint accent line */}
         <span
-          className="absolute bottom-[78px] left-5 h-1 w-10 rounded-full"
+          className="absolute bottom-[58px] left-4 h-1 w-8 rounded-full sm:bottom-[78px] sm:left-5 sm:w-10"
           style={{ background: member.tint }}
         />
 
         {/* name + position */}
-        <div className="absolute inset-x-0 bottom-0 p-5">
+        <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
           <h3
-            className="text-lg font-bold leading-tight text-white"
+            className="text-sm font-bold leading-tight text-white sm:text-lg"
             style={{ fontFamily: "var(--font-display)" }}
           >
             {member.name}
           </h3>
-          <p className="mt-0.5 text-sm text-white/75">{member.position}</p>
+          <p className="mt-0.5 text-xs text-white/75 sm:text-sm">
+            {member.position}
+          </p>
         </div>
       </div>
     </article>
@@ -209,9 +213,9 @@ export default function TeamMarquee() {
 
   return (
     <div className="relative w-full overflow-hidden">
-      {/* edge fades */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-bg to-transparent sm:w-28" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-bg to-transparent sm:w-28" />
+      {/* edge fades — subtle on mobile so they don't wash over the photos */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-bg/80 to-transparent sm:w-28 sm:from-bg" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-bg/80 to-transparent sm:w-28 sm:from-bg" />
 
       <div
         ref={trackRef}

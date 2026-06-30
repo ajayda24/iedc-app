@@ -144,13 +144,32 @@ html.lenis body {
   opacity: 0;
   transform: translateY(26px);
 }
-[data-station].is-active .reveal {
+/* one-way reveal: stays visible once seen, so content never snaps back
+   to blank while the section is still in view */
+[data-station].is-seen .reveal {
   opacity: 1;
   transform: translateY(0);
 }
 [data-station].is-active .reveal:nth-child(2) { transition-delay: 0.06s; }
 [data-station].is-active .reveal:nth-child(3) { transition-delay: 0.12s; }
 [data-station].is-active .reveal:nth-child(4) { transition-delay: 0.18s; }
+
+/* On mobile, settle faster and with less travel so scrolling doesn't
+   leave a gap waiting for the reveal to finish. */
+@media (max-width: 768px) {
+  [data-station] {
+    transition: opacity 0.35s ease, filter 0.35s ease;
+  }
+  [data-station] .reveal {
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    transform: translateY(14px);
+  }
+  [data-station] .reveal:nth-child(2),
+  [data-station] .reveal:nth-child(3),
+  [data-station] .reveal:nth-child(4) {
+    transition-delay: 0s;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   [data-station],
