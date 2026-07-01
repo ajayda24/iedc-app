@@ -23,11 +23,18 @@ export async function getProfile(): Promise<ProfileCurrent | null> {
   } = await supabase.auth.getUser()
   if (!user) return null
 
-  const { data } = await supabase
+  // maybeSingle (not single): a missing profile is an expected state (e.g. a
+  // brand-new auth user mid-signup), not an error to throw on. PGRST116 from
+  // single() previously masked real RLS failures behind a generic null.
+  const { data, error } = await supabase
     .from('profiles_current')
     .select('*')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
+
+  if (error) {
+    console.error('[getProfile] failed to read profiles_current:', error.message)
+  }
 
   return (data as ProfileCurrent) ?? null
 }

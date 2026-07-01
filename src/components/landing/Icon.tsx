@@ -97,6 +97,50 @@ const paths: Record<string, React.ReactNode> = {
     </>
   ),
   check: <path d="m5 12.5 4.5 4.5L19 7" />,
+  home: (
+    <>
+      <path d="M4 11.5 12 4l8 7.5" />
+      <path d="M6 10v9.5h12V10" />
+      <path d="M10 19.5V14h4v5.5" />
+    </>
+  ),
+  bell: (
+    <>
+      <path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z" />
+      <path d="M10 20a2 2 0 0 0 4 0" />
+    </>
+  ),
+  "chevron-down": <path d="m6 9 6 6 6-6" />,
+  grid: (
+    <>
+      <rect x="4" y="4" width="7" height="7" rx="1.5" />
+      <rect x="13" y="4" width="7" height="7" rx="1.5" />
+      <rect x="4" y="13" width="7" height="7" rx="1.5" />
+      <rect x="13" y="13" width="7" height="7" rx="1.5" />
+    </>
+  ),
+  "log-out": (
+    <>
+      <path d="M15 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h9" />
+      <path d="M11 12h9M17 8l4 4-4 4" />
+    </>
+  ),
+  search: (
+    <>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </>
+  ),
+  gift: (
+    <>
+      <rect x="3.5" y="9" width="17" height="4" rx="1" />
+      <path d="M5 13v7h14v-7M12 9v11" />
+      <path d="M12 9S10.5 4.5 8 5.5 10 9 12 9Zm0 0s1.5-4.5 4-3.5S14 9 12 9Z" />
+    </>
+  ),
+  flame: (
+    <path d="M12 3c1 3 4 4 4 8a4 4 0 0 1-8 0c0-1.2.4-2 1-2.8C9 9.5 11 8 12 3Z" />
+  ),
   eye: (
     <>
       <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />

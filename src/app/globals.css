@@ -90,6 +90,75 @@ html.lenis body {
   -webkit-backdrop-filter: blur(14px) saturate(130%);
 }
 
+/* ---- Overlay / popover transitions ---- */
+/* Popover (dropdown menus, notification sheet): fade + slight rise/scale. */
+.anim-pop {
+  transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: top right;
+}
+.anim-pop[data-show='false'] {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.97);
+}
+.anim-pop[data-show='true'] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Backdrop: simple fade. */
+.anim-fade {
+  transition: opacity 0.18s ease;
+}
+.anim-fade[data-show='false'] { opacity: 0; }
+.anim-fade[data-show='true'] { opacity: 1; }
+
+/* Search modal panel: fade + rise (origin top-center). */
+.anim-modal {
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: top center;
+}
+.anim-modal[data-show='false'] {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.98);
+}
+.anim-modal[data-show='true'] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Mobile notification sheet: slide down from the top. */
+.anim-sheet {
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: top center;
+}
+.anim-sheet[data-show='false'] {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+.anim-sheet[data-show='true'] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Bottom drawer / sheet: slide up from the bottom edge. */
+.anim-drawer {
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
+}
+.anim-drawer[data-show='false'] {
+  opacity: 0;
+  transform: translateY(100%);
+}
+.anim-drawer[data-show='true'] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-pop, .anim-fade, .anim-modal, .anim-sheet, .anim-drawer {
+    transition: none !important;
+  }
+}
+
 .text-grad {
   background: linear-gradient(100deg, var(--indigo), var(--blue) 40%, var(--sky) 75%, var(--mint));
   -webkit-background-clip: text;
