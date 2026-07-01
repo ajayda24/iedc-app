@@ -1,0 +1,62 @@
+// Next.js 16 renamed `middleware` -> `proxy` (Node.js runtime by default).
+// This refreshes the Supabase auth session on every matched request so Server
+// Components always see a valid session, and gates the protected app routes.
+//
+// IMPORTANT: proxy is NOT a security boundary on its own. Always re-check auth
+// inside Server Actions / Route Handlers too (see lib/auth/queries.ts).
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
+
+// Routes that require a logged-in user. Everything else (landing page, the
+// /login and /signup flow, static assets) stays public.
+const PROTECTED_PREFIXES = ['/dashboard', '/profile', '/events', '/admin']
+
+export async function proxy(request: NextRequest) {
+  let response = NextResponse.next({ request })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          )
+          response = NextResponse.next({ request })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
+
+  // Touching getUser() refreshes the session and rewrites cookies if needed.
+  // Use getUser (validates with the auth server), NOT getSession, for gating.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const { pathname } = request.nextUrl
+  const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p))
+
+  if (isProtected && !user) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    url.searchParams.set('redirect', pathname)
+    return NextResponse.redirect(url)
+  }
+
+  return response
+}
+
+export const config = {
+  // Run on everything except static assets and image optimization.
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
+}

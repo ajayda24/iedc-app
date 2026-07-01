@@ -2,6 +2,66 @@
 
 Auth + profile + events system for the IEDC Hub app.
 
+## App-side wiring (Next.js 16)
+
+> Next.js 16 renamed `middleware` → **`proxy`**. Session refresh lives in
+> [`src/proxy.ts`](../proxy.ts), not `middleware.ts`.
+
+| File | Role |
+|------|------|
+| [`src/lib/supabase/client.ts`](../lib/supabase/client.ts) | Browser client (anon key, RLS) — Client Components only |
+| [`src/lib/supabase/server.ts`](../lib/supabase/server.ts) | Cookie-bound server client (RLS as the user) — RSC / actions / route handlers. `cookies()` is async in Next 16 |
+| [`src/lib/supabase/admin.ts`](../lib/supabase/admin.ts) | **Service-role** client — bypasses RLS, server-only. Never import in client code |
+| [`src/proxy.ts`](../proxy.ts) | Refreshes the session each request + gates `/dashboard`, `/profile`, `/events`, `/admin` |
+| [`src/lib/auth/actions.ts`](../lib/auth/actions.ts) | 3-step signup + login/logout Server Actions |
+| [`src/lib/auth/queries.ts`](../lib/auth/queries.ts) | `getUser` / `getProfile` / `requireProfile` / `requireRole` — the real auth boundary |
+| [`src/app/auth/callback/route.ts`](../app/auth/callback/route.ts) | Code-exchange callback for email-link / OAuth flows |
+| [`src/lib/queries/`](../lib/queries/) | Server-side data helpers (events, registrations, leaderboard, notifications, certificates) — import from `@/lib/queries` |
+
+### Query helpers (server-side, RLS-respecting)
+All run as the logged-in user; RLS decides visibility. Import from `@/lib/queries`.
+
+- **events**: `listEvents`, `getEvent`, `listOpenEvents`, `createEvent`*, `updateEvent`*
+- **registrations**: `getMyRegistration`, `listMyRegistrations`, `registerForEvent`,
+  `cancelRegistration`, `listEventRegistrations`*, `markAttendance`*
+- **leaderboard**: `getLeaderboard`, `getTop3`, `getDepartmentLeaderboard`,
+  `getDepartmentStats`, `getYearStats`, `getMyRank`
+- **notifications**: `listMyNotifications`, `createNotification`*
+- **certificates**: `listMyCertificates`, `issueCertificate`*
+
+`*` = staff/admin-only (RLS enforces `is_staff()`).
+
+**Signup flow** (all server-side, client sends only `studentId` + OTP code):
+1. `requestSignupOtp(studentId)` — admin client verifies the roster, checks no
+   existing profile, sends OTP to the **on-file** email; returns a masked hint.
+2. `verifySignupOtp(email, code)` — verifies OTP, establishes the session.
+3. `completeSignup(password, phone?)` — sets the password, inserts the profile
+   from roster data (dept/name/email copied server-side — can't be spoofed).
+
+> `proxy.ts` alone is **not** a security boundary. Every protected Server
+> Component / Action calls `requireProfile()` / `requireRole()` from `queries.ts`.
+
+### Required env (`.env`)
+```
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...   # server-only — never exposed to the browser
+```
+
+### Supabase dashboard settings for OTP
+- **Auth → Providers → Email**: enable Email OTP (the 6-digit code path).
+- **Auth → URL Configuration**: add your site URL + `…/auth/callback` redirect.
+
+### Seeding the dummy roster (10 students)
+Two equivalent options — pick one:
+- **SQL**: run [`seed.sql`](./seed.sql) in the Supabase SQL Editor (after
+  `schema.sql` + `roster-lifecycle.sql`).
+- **CLI**: `npm run seed:roster` (uses the service-role key from `.env`, Node 24+).
+
+⚠ The seed emails are `@example.edu` placeholders. To test the OTP signup flow
+end-to-end, replace at least one with a **real inbox you control** — the code is
+sent to the email on file.
+
 ## Files (run in this order in the Supabase SQL Editor)
 
 1. **`schema.sql`** — extensions, enums, tables, auto-compute triggers, role helpers
