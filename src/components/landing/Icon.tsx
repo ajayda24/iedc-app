@@ -160,6 +160,27 @@ const paths: Record<string, React.ReactNode> = {
       <path d="M12 7.5 8 9.75v4.5L12 16.5l4-2.25v-4.5L12 7.5Z" />
     </>
   ),
+  plus: <path d="M12 5v14M5 12h14" />,
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5V12l3 2" />
+    </>
+  ),
+  "chevron-left": <path d="m14 6-6 6 6 6" />,
+  "chevron-right": <path d="m10 6 6 6-6 6" />,
+  edit: (
+    <>
+      <path d="M4 20h4L18.5 9.5a2 2 0 0 0-2.83-2.83L5 17.5V20Z" />
+      <path d="M14.5 8.5 16.5 10.5" />
+    </>
+  ),
+  trash: (
+    <>
+      <path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+      <path d="M6 7v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7M10 11v6M14 11v6" />
+    </>
+  ),
 };
 
 export default function Icon({ name, className }: Props) {

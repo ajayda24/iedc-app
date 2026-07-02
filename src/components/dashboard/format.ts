@@ -1,5 +1,6 @@
 import type {
   EventCategory,
+  EventStatus,
   RegistrationStatus,
 } from '@/lib/supabase/database.types'
 
@@ -18,6 +19,30 @@ export function eventTime(iso: string): string {
     hour: 'numeric',
     minute: '2-digit',
   })
+}
+
+// "Thursday, July 3, 2026"
+export function fullDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
+// A start–end time span. Same-day: "9:00 AM – 11:00 AM". Spans days or no end:
+// falls back to the start time only.
+export function timeRange(startIso: string, endIso: string | null): string {
+  const start = eventTime(startIso)
+  if (!endIso) return start
+  const s = new Date(startIso)
+  const e = new Date(endIso)
+  const sameDay =
+    s.getFullYear() === e.getFullYear() &&
+    s.getMonth() === e.getMonth() &&
+    s.getDate() === e.getDate()
+  return sameDay ? `${start} – ${eventTime(endIso)}` : start
 }
 
 export function relativeTime(iso: string): string {
@@ -42,6 +67,16 @@ export const CATEGORY_LABEL: Record<EventCategory, string> = {
   competition: 'Competition',
   talk: 'Talk',
   meeting: 'Meeting',
+}
+
+export const EVENT_STATUS: Record<
+  EventStatus,
+  { label: string; tint: 'indigo' | 'mint' | 'peach' | 'muted' }
+> = {
+  draft: { label: 'Draft', tint: 'muted' },
+  published: { label: 'Published', tint: 'indigo' },
+  completed: { label: 'Completed', tint: 'mint' },
+  cancelled: { label: 'Cancelled', tint: 'peach' },
 }
 
 export const REG_STATUS: Record<

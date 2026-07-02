@@ -47,6 +47,26 @@ export async function getEvent(id: string): Promise<EventRow | null> {
   return (data as EventRow) ?? null
 }
 
+// Count of active (non-cancelled) registrations per event id. Used to show
+// "spots left" on cards. One grouped query rather than N per-event counts.
+export async function countRegistrationsByEvent(
+  eventIds: string[]
+): Promise<Record<string, number>> {
+  if (eventIds.length === 0) return {}
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('event_registrations')
+    .select('event_id')
+    .in('event_id', eventIds)
+    .neq('status', 'cancelled')
+  if (error) throw error
+  const counts: Record<string, number> = {}
+  for (const row of (data as { event_id: string }[]) ?? []) {
+    counts[row.event_id] = (counts[row.event_id] ?? 0) + 1
+  }
+  return counts
+}
+
 // Published events open for registration right now (deadline not passed).
 export async function listOpenEvents(): Promise<EventRow[]> {
   const supabase = await createClient()
@@ -94,4 +114,10 @@ export async function updateEvent(
     .single()
   if (error) throw error
   return data as EventRow
+}
+
+export async function deleteEvent(id: string): Promise<void> {
+  const supabase = await createClient()
+  const { error } = await supabase.from('events').delete().eq('id', id)
+  if (error) throw error
 }
