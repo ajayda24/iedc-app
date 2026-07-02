@@ -12,9 +12,11 @@ import {
   deleteEvent,
   type EventInput,
 } from './events'
+import { markAttendance } from './registrations'
 import type {
   EventCategory,
   EventStatus,
+  RegistrationStatus,
 } from '@/lib/supabase/database.types'
 
 const CATEGORIES: EventCategory[] = [
@@ -140,5 +142,25 @@ export async function deleteEventAction(id: string): Promise<ActionResult> {
     return { ok: false, error: 'Could not delete the event.' }
   }
   revalidatePath('/dashboard/manage')
+  return { ok: true }
+}
+
+// Mark one registration attended/absent (staff attendance view). `eventId` is
+// only used to revalidate the right page.
+export async function markAttendanceAction(
+  registrationId: string,
+  eventId: string,
+  status: Extract<RegistrationStatus, 'attended' | 'absent'>
+): Promise<ActionResult> {
+  await requireStaff()
+  if (status !== 'attended' && status !== 'absent') {
+    return { ok: false, error: 'Invalid attendance status.' }
+  }
+  try {
+    await markAttendance(registrationId, status)
+  } catch {
+    return { ok: false, error: 'Could not update attendance.' }
+  }
+  revalidatePath(`/dashboard/manage/${eventId}/registrations`)
   return { ok: true }
 }

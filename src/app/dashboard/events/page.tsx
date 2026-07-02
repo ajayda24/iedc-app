@@ -21,6 +21,7 @@ const TIME_FILTERS = [
   { key: 'open', label: 'Open' },
   { key: 'upcoming', label: 'Upcoming' },
   { key: 'past', label: 'Past' },
+  { key: 'mine', label: 'My Events' },
 ] as const
 type TimeFilter = (typeof TIME_FILTERS)[number]['key']
 
@@ -49,16 +50,25 @@ export default async function EventsPage({
     listMyRegistrations(),
   ])
 
+  // event id -> the user's current registration status (active or cancelled).
+  const myStatus = new Map<string, RegistrationStatus>()
+  for (const r of myRegs) myStatus.set(r.event_id, r.status)
+
+  // "My Events" = events the user holds an active (non-cancelled) spot for.
+  const myActiveIds = new Set(
+    myRegs.filter((r) => r.status !== 'cancelled').map((r) => r.event_id)
+  )
+
   // Latest first (listEvents returns ascending by start_date).
-  const filtered = applyTimeFilter(events, filter).sort(
+  const filtered = (
+    filter === 'mine'
+      ? events.filter((e) => myActiveIds.has(e.id))
+      : applyTimeFilter(events, filter)
+  ).sort(
     (a, b) =>
       new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
   )
   const counts = await countRegistrationsByEvent(filtered.map((e) => e.id))
-
-  // event id -> the user's current registration status (active or cancelled).
-  const myStatus = new Map<string, RegistrationStatus>()
-  for (const r of myRegs) myStatus.set(r.event_id, r.status)
 
   return (
     <div className="space-y-5">
@@ -92,11 +102,19 @@ export default async function EventsPage({
       {/* Grid */}
       {filtered.length === 0 ? (
         <Card>
-          <EmptyState
-            icon="calendar"
-            title="No events match these filters"
-            hint="Try clearing the filters or check back soon."
-          />
+          {filter === 'mine' ? (
+            <EmptyState
+              icon="calendar"
+              title="You haven't registered for any events yet"
+              hint="Browse Open events and register in one tap."
+            />
+          ) : (
+            <EmptyState
+              icon="calendar"
+              title="No events match these filters"
+              hint="Try clearing the filters or check back soon."
+            />
+          )}
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

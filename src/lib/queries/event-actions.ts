@@ -16,6 +16,7 @@ export async function registerAction(eventId: string): Promise<ActionResult> {
   try {
     await registerForEvent(eventId)
     revalidatePath('/dashboard/events')
+    revalidatePath(`/dashboard/events/${eventId}`)
     return { ok: true }
   } catch (err) {
     return { ok: false, error: messageFor(err) }
@@ -26,6 +27,7 @@ export async function cancelAction(eventId: string): Promise<ActionResult> {
   try {
     await cancelRegistration(eventId)
     revalidatePath('/dashboard/events')
+    revalidatePath(`/dashboard/events/${eventId}`)
     return { ok: true }
   } catch (err) {
     return { ok: false, error: messageFor(err) }

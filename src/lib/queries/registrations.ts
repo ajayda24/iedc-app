@@ -7,8 +7,17 @@ import { createClient } from '@/lib/supabase/server'
 import type {
   EventRegistration,
   EventRow,
+  Profile,
   RegistrationStatus,
 } from '@/lib/supabase/database.types'
+
+// A registration joined with the attendee's profile (staff attendance view).
+export type RegistrationWithProfile = EventRegistration & {
+  profile: Pick<
+    Profile,
+    'id' | 'name' | 'student_id' | 'department' | 'avatar'
+  > | null
+}
 
 // A student's registration for one event, or null.
 export async function getMyRegistration(
@@ -86,15 +95,17 @@ export async function cancelRegistration(eventId: string): Promise<void> {
 // --- Staff: view all registrations for an event + mark attendance ----------
 export async function listEventRegistrations(
   eventId: string
-): Promise<EventRegistration[]> {
+): Promise<RegistrationWithProfile[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('event_registrations')
-    .select('*')
+    .select(
+      '*, profile:profiles(id, name, student_id, department, avatar)'
+    )
     .eq('event_id', eventId)
     .order('registered_at', { ascending: true })
   if (error) throw error
-  return (data as EventRegistration[]) ?? []
+  return (data as RegistrationWithProfile[]) ?? []
 }
 
 export async function markAttendance(
