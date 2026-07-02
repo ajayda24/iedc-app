@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Icon from "./Icon";
 
 function StatChip({
@@ -92,10 +93,12 @@ export default function Hero() {
             startups.
           </p>
           <div className="reveal mt-8 flex flex-wrap items-center gap-3">
+            <Link href="/dashboard">
             <button className="btn-primary inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold">
               Get Started
               <Icon name="arrow" className="h-4 w-4" />
             </button>
+            </Link>
             <button className="btn-ghost inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold">
               <Icon name="play" className="h-4 w-4 text-indigo" />
               Learn More

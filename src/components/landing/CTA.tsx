@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Icon from "./Icon";
 
 export default function CTA() {
@@ -30,10 +31,12 @@ export default function CTA() {
               innovators building what&apos;s next.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Link href="/dashboard" >
               <button className="btn-primary inline-flex items-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold">
                 Get Started
                 <Icon name="arrow" className="h-4 w-4" />
               </button>
+              </Link>
               {/* <button className="btn-ghost rounded-xl px-7 py-3.5 text-sm font-semibold">
                 Talk to the team
               </button> */}
