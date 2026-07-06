@@ -135,6 +135,31 @@ export interface LeaderboardRow {
   rank: number
 }
 
+// A row of the monthly (resetting) leaderboard. `month` is the first day of the
+// calendar month (YYYY-MM-DD). Points here are derived from that month's events
+// only — distinct from the all-time totals on LeaderboardRow.
+export interface MonthlyLeaderboardRow {
+  id: string
+  student_id: string
+  name: string
+  avatar: string | null
+  department: Department
+  year: number
+  month: string
+  month_points: number
+  month_events: number
+  rank: number
+}
+
+// A single top-3 placement a user achieved in a given month — the data behind
+// the "[Month] Winner / 2nd / 3rd" badges on a viewed profile.
+export interface MonthlyPlacement {
+  month: string
+  rank: number
+  month_points: number
+  month_events: number
+}
+
 export interface DepartmentStat {
   department: Department
   student_count: number

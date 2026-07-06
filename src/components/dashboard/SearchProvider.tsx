@@ -9,6 +9,7 @@ import {
   useRef,
 } from 'react'
 import { useRouter } from 'next/navigation'
+import { yearLabel } from '@/components/dashboard/format'
 import Icon from '@/components/landing/Icon'
 import { dateChip, CATEGORY_LABEL } from './format'
 import { useMountTransition } from './use-mount-transition'
@@ -223,7 +224,7 @@ function SearchModal({ show, onClose }: { show: boolean; onClose: () => void }) 
                       {p.name}
                     </span>
                     <span className="block text-xs text-muted truncate">
-                      {p.department} · Year {p.year} · {p.total_points} pts
+                      {p.department} · {yearLabel(p.year)} · {p.total_points} pts
                     </span>
                   </span>
                 </button>

@@ -60,6 +60,19 @@ export function relativeTime(iso: string): string {
   })
 }
 
+// Ordinal academic year for display, e.g. 1 -> "1st Year", 3 -> "3rd Year".
+export function yearLabel(year: number): string {
+  const suffix =
+    year % 10 === 1 && year % 100 !== 11
+      ? 'st'
+      : year % 10 === 2 && year % 100 !== 12
+        ? 'nd'
+        : year % 10 === 3 && year % 100 !== 13
+          ? 'rd'
+          : 'th'
+  return `${year}${suffix} Year`
+}
+
 export const CATEGORY_LABEL: Record<EventCategory, string> = {
   workshop: 'Workshop',
   bootcamp: 'Bootcamp',

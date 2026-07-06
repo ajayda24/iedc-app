@@ -6,10 +6,20 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import type {
   LeaderboardRow,
+  MonthlyLeaderboardRow,
+  MonthlyPlacement,
   DepartmentStat,
   YearStat,
   Department,
 } from '@/lib/supabase/database.types'
+
+// First day (YYYY-MM-DD) of a month, defaulting to the current month. This is
+// the key used by the monthly leaderboard views' `month` column.
+export function monthKey(date = new Date()): string {
+  const y = date.getUTCFullYear()
+  const m = String(date.getUTCMonth() + 1).padStart(2, '0')
+  return `${y}-${m}-01`
+}
 
 // Overall ranking, optionally limited (e.g. top 50).
 export async function getLeaderboard(limit?: number): Promise<LeaderboardRow[]> {
@@ -64,6 +74,78 @@ export async function getYearStats(): Promise<YearStat[]> {
     .order('year')
   if (error) throw error
   return (data as YearStat[]) ?? []
+}
+
+// -----------------------------------------------------------------------------
+// Monthly (resetting) leaderboard. The board "resets" each month purely by
+// filtering the monthly views on `month` — no counters are mutated, so all-time
+// totals above are unaffected. Defaults to the current month.
+// -----------------------------------------------------------------------------
+
+// Full monthly ranking for a given month (default: current), optionally limited.
+export async function getMonthlyLeaderboard(
+  month: string = monthKey(),
+  limit?: number
+): Promise<MonthlyLeaderboardRow[]> {
+  const supabase = await createClient()
+  let query = supabase
+    .from('leaderboard_monthly')
+    .select('*')
+    .eq('month', month)
+    .order('rank')
+  if (limit) query = query.limit(limit)
+  const { data, error } = await query
+  if (error) throw error
+  return (data as MonthlyLeaderboardRow[]) ?? []
+}
+
+// Top 3 of a given month (default: current) — powers the podium.
+export async function getMonthlyTop3(
+  month: string = monthKey()
+): Promise<MonthlyLeaderboardRow[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('leaderboard_monthly_top3')
+    .select('*')
+    .eq('month', month)
+    .order('rank')
+  if (error) throw error
+  return (data as MonthlyLeaderboardRow[]) ?? []
+}
+
+// Current user's monthly rank + neighbours for a "your rank" widget.
+export async function getMyMonthlyRank(
+  month: string = monthKey(),
+  window = 2
+): Promise<{ me: MonthlyLeaderboardRow; around: MonthlyLeaderboardRow[] } | null> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const board = await getMonthlyLeaderboard(month)
+  const idx = board.findIndex((r) => r.id === user.id)
+  if (idx === -1) return null
+
+  const start = Math.max(0, idx - window)
+  return {
+    me: board[idx],
+    around: board.slice(start, idx + window + 1),
+  }
+}
+
+// Every top-3 monthly placement for one profile (newest first) — the data
+// behind the "[Month] Winner / 2nd / 3rd" badges shown on a viewed profile.
+export async function getProfileMonthlyPlacements(
+  profileId: string
+): Promise<MonthlyPlacement[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc('profile_monthly_placements', {
+    p_profile_id: profileId,
+  })
+  if (error) throw error
+  return (data as MonthlyPlacement[]) ?? []
 }
 
 // Current user's rank + neighbours (rows just above/below) for a "your rank"

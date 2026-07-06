@@ -7,7 +7,7 @@ import {
   listMyNotifications,
 } from '@/lib/queries'
 import { Card, SectionHeader, StatCard, Pill, EmptyState } from '@/components/dashboard/ui'
-import { dateChip, eventTime, relativeTime, CATEGORY_LABEL } from '@/components/dashboard/format'
+import { dateChip, eventTime, relativeTime, yearLabel, CATEGORY_LABEL } from '@/components/dashboard/format'
 import Icon from '@/components/landing/Icon'
 
 export default async function DashboardPage() {
@@ -149,7 +149,7 @@ export default async function DashboardPage() {
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-sm truncate">{row.name}</p>
                     <p className="text-xs text-muted">
-                      {row.department} · Year {row.year}
+                      {row.department} · {yearLabel(row.year)}
                     </p>
                   </div>
                   <span className="text-sm font-semibold text-indigo shrink-0">
