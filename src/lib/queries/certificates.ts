@@ -28,6 +28,22 @@ export async function listMyCertificates(): Promise<
   return (data as (Certificate & { event: EventRow | null })[]) ?? []
 }
 
+// A given profile's certificates, newest first, with the joined event. RLS
+// restricts certificates to the owner (or staff), so on another user's profile
+// this is empty for non-staff viewers until that policy is widened.
+export async function listCertificatesFor(
+  profileId: string
+): Promise<(Certificate & { event: EventRow | null })[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('certificates')
+    .select('*, event:events(*)')
+    .eq('profile_id', profileId)
+    .order('issued_at', { ascending: false })
+  if (error) throw error
+  return (data as (Certificate & { event: EventRow | null })[]) ?? []
+}
+
 // Staff: issue a certificate to a student.
 export async function issueCertificate(input: {
   profileId: string

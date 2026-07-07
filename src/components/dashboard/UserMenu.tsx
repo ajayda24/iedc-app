@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import Link from 'next/link'
 import Icon from '@/components/landing/Icon'
 import { logout } from '@/lib/auth/actions'
 import { useMountTransition } from './use-mount-transition'
@@ -73,6 +74,14 @@ export default function UserMenu({ profile }: { profile: ProfileCurrent }) {
             <p className="text-sm font-semibold truncate">{profile.name}</p>
             <p className="text-xs text-muted truncate">{profile.email}</p>
           </div>
+          <Link
+            href="/dashboard/profile"
+            onClick={() => setOpen(false)}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-ink-soft hover:bg-white/70 transition-colors"
+          >
+            <Icon name="user" className="w-4 h-4" />
+            View profile
+          </Link>
           <form action={logout}>
             <button
               type="submit"

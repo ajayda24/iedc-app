@@ -89,8 +89,8 @@ export function StatCard({
 
 // Small rounded status pill.
 const PILL_TINTS: Record<string, string> = {
-  indigo: 'text-indigo bg-indigo/12',
-  mint: 'text-mint bg-mint/15',
+  indigo: 'text-indigo bg-indigo/15',
+  mint: 'text-mint bg-mint/12',
   peach: 'text-peach bg-peach/15',
   muted: 'text-muted bg-black/5',
 }

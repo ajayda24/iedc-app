@@ -67,6 +67,25 @@ export async function countRegistrationsByEvent(
   return counts
 }
 
+// Events created by a given profile (staff), newest first. Powers the "Events
+// Organized" section on a coordinator/admin profile. RLS still applies, so a
+// non-staff viewer only sees the creator's published events.
+export async function listEventsByCreator(
+  profileId: string,
+  limit?: number
+): Promise<EventRow[]> {
+  const supabase = await createClient()
+  let query = supabase
+    .from('events')
+    .select('*')
+    .eq('created_by', profileId)
+    .order('start_date', { ascending: false })
+  if (limit) query = query.limit(limit)
+  const { data, error } = await query
+  if (error) throw error
+  return (data as EventRow[]) ?? []
+}
+
 // Published events open for registration right now (deadline not passed).
 export async function listOpenEvents(): Promise<EventRow[]> {
   const supabase = await createClient()

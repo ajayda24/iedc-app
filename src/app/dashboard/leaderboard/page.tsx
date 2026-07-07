@@ -102,7 +102,7 @@ export default async function LeaderboardPage({
         {/* Ranked list */}
         <div className="grid gap-5 xl:grid-cols-[1fr_20rem] items-start">
 
-          <Card className='p-2!'>
+          <Card className='p-4!'>
             <SectionHeader
               title={department ? `${department} — This Month` : 'This Month'}
               icon="trophy"
@@ -114,7 +114,7 @@ export default async function LeaderboardPage({
                 hint="Attend an event to get on the board."
               />
             ) : (
-              <ul className="divide-y divide-black/5 flex flex-col gap-2 ">
+              <ul className="divide-y divide-black/5 flex flex-col gap-2">
                 {ranked.map(({ row, pos }) => (
                   
                   <Row key={row.id} row={row} pos={pos} isMe={row.id === rank?.me.id} />
@@ -281,8 +281,9 @@ function LaurelBadge({ rank, className = '' }: { rank: number; className?: strin
 function PodiumCard({ row }: { row: MonthlyLeaderboardRow }) {
   const s = PODIUM_STYLE[row.rank as 1 | 2 | 3] ?? PODIUM_STYLE[3]
   return (
-    <div
-      className={` rounded-3xl ${s.card} ${s.lift} ${s.pad} px-2 sm:px-3 flex flex-col items-center text-center min-w-0`}
+    <Link
+      href={`/dashboard/profile/${row.id}`}
+      className={` rounded-3xl ${s.card} ${s.lift} ${s.pad} px-2 sm:px-3 flex flex-col items-center text-center min-w-0 transition-transform hover:-translate-y-0.5`}
     >
       <LaurelBadge rank={row.rank} className={s.laurel} />
 
@@ -314,7 +315,7 @@ function PodiumCard({ row }: { row: MonthlyLeaderboardRow }) {
         {/* <Icon name="spark" className="w-4 h-4 text-mint" /> */}
         {row.month_points.toLocaleString()}
       </p>
-    </div>
+    </Link>
   )
 }
 
@@ -346,10 +347,12 @@ function Row({
   isMe: boolean
 }) {
   return (
-    <li
-      className={`flex flex-wrap items-center gap-3 py-3 px-2 rounded-2xl ${isMe ? 'bg-indigo/10' : ''
-        }`}
-    >
+    <li>
+      <Link
+        href={`/dashboard/profile/${row.id}`}
+        className={`flex flex-wrap items-center gap-3 py-3 px-2 -mx-2 rounded-2xl transition-colors hover:bg-white/60 ${isMe ? 'bg-indigo/10' : ''
+          }`}
+      >
       <span
         className={`grid place-items-center w-8 h-8 rounded-full text-sm font-bold shrink-0 ${rankTint(
           pos
@@ -382,6 +385,7 @@ function Row({
         {row.month_points.toLocaleString()}
         <span className="text-muted font-normal"> pts</span>
       </span>
+      </Link>
     </li>
   )
 }

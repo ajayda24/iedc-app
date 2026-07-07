@@ -57,6 +57,23 @@ export async function listMyRegistrations(): Promise<
   return (data as (EventRegistration & { event: EventRow })[]) ?? []
 }
 
+// A given profile's registrations with joined event, newest first. Used for the
+// participation timeline on a profile page. RLS: a user can read their own; for
+// other users this returns rows only where the underlying registration is
+// visible to the caller (staff, or self).
+export async function listRegistrationsFor(
+  profileId: string
+): Promise<(EventRegistration & { event: EventRow })[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('event_registrations')
+    .select('*, event:events(*)')
+    .eq('profile_id', profileId)
+    .order('registered_at', { ascending: false })
+  if (error) throw error
+  return (data as (EventRegistration & { event: EventRow })[]) ?? []
+}
+
 // Register the current user for an event (RLS checks event is open).
 export async function registerForEvent(
   eventId: string

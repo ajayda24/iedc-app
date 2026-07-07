@@ -31,6 +31,19 @@ export async function getLeaderboard(limit?: number): Promise<LeaderboardRow[]> 
   return (data as LeaderboardRow[]) ?? []
 }
 
+// A single profile's all-time overall rank, or null if not ranked (e.g. staff
+// or a student with no points). Reads just their row from the leaderboard view.
+export async function getRankFor(profileId: string): Promise<number | null> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('leaderboard')
+    .select('rank')
+    .eq('id', profileId)
+    .maybeSingle()
+  if (error) throw error
+  return (data as { rank: number } | null)?.rank ?? null
+}
+
 // Top 3 overall (dedicated view).
 export async function getTop3(): Promise<LeaderboardRow[]> {
   const supabase = await createClient()

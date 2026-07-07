@@ -39,6 +39,25 @@ export async function getProfile(): Promise<ProfileCurrent | null> {
   return (data as ProfileCurrent) ?? null
 }
 
+// Any profile by id (for viewing someone else's profile page). RLS lets any
+// authenticated user read any profile row (profiles_select). Returns null if
+// not found or not permitted.
+export async function getProfileById(
+  id: string
+): Promise<ProfileCurrent | null> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('profiles_current')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle()
+
+  if (error) {
+    console.error('[getProfileById] failed:', error.message)
+  }
+  return (data as ProfileCurrent) ?? null
+}
+
 // Require a logged-in user; redirect to /login otherwise. Returns the profile.
 export async function requireProfile(): Promise<ProfileCurrent> {
   const profile = await getProfile()

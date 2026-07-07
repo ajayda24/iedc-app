@@ -131,31 +131,33 @@ export default async function DashboardPage() {
           ) : (
             <ul className="space-y-2">
               {top3.map((row) => (
-                <li
-                  key={row.id}
-                  className="flex items-center gap-3 py-1.5"
-                >
-                  <span
-                    className={`grid place-items-center w-7 h-7 rounded-full text-xs font-bold ${
-                      row.rank === 1
-                        ? 'bg-peach/25 text-peach'
-                        : row.rank === 2
-                          ? 'bg-blue/15 text-blue'
-                          : 'bg-mint/20 text-mint'
-                    }`}
+                <li key={row.id}>
+                  <Link
+                    href={`/dashboard/profile/${row.id}`}
+                    className="flex items-center gap-3 py-1.5 px-2 -mx-2 rounded-2xl hover:bg-white/60 transition-colors"
                   >
-                    {row.rank}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-sm truncate">{row.name}</p>
-                    <p className="text-xs text-muted">
-                      {row.department} · {yearLabel(row.year)}
-                    </p>
-                  </div>
-                  <span className="text-sm font-semibold text-indigo shrink-0">
-                    {row.total_points.toLocaleString()}
-                    <span className="text-muted font-normal"> pts</span>
-                  </span>
+                    <span
+                      className={`grid place-items-center w-7 h-7 rounded-full text-xs font-bold ${
+                        row.rank === 1
+                          ? 'bg-peach/25 text-peach'
+                          : row.rank === 2
+                            ? 'bg-blue/15 text-blue'
+                            : 'bg-mint/20 text-mint'
+                      }`}
+                    >
+                      {row.rank}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-sm truncate">{row.name}</p>
+                      <p className="text-xs text-muted">
+                        {row.department} · {yearLabel(row.year)}
+                      </p>
+                    </div>
+                    <span className="text-sm font-semibold text-indigo shrink-0">
+                      {row.total_points.toLocaleString()}
+                      <span className="text-muted font-normal"> pts</span>
+                    </span>
+                  </Link>
                 </li>
               ))}
             </ul>

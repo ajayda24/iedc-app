@@ -45,6 +45,10 @@ export interface Profile {
   department: Department
   role: UserRole
   avatar: string | null
+  bio: string | null
+  github: string | null
+  linkedin: string | null
+  website: string | null
   total_points: number
   total_events: number
   total_certificates: number
