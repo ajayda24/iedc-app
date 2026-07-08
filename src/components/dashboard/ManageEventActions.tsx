@@ -91,8 +91,8 @@ export default function ManageEventActions({
       )}
 
       <Link
-        href={`/dashboard/manage/${eventId}/registrations`}
-        aria-label="View registrations & attendance"
+        href={`/dashboard/manage/${eventId}/overview`}
+        aria-label="View event overview"
         className="grid place-items-center w-8 h-8 rounded-xl text-ink-soft hover:bg-white/70 transition-colors"
       >
         <Icon name="team" className="w-4 h-4" />

@@ -261,3 +261,156 @@ html.lenis body {
   0%, 100% { opacity: 0.55; }
   50% { opacity: 1; }
 }
+
+/* ============ Certificate: Aurora template ============ */
+/* Fixed A4 landscape (1123×794 @96dpi). The canvas wrapper scales this box to
+   fit; children size in cqw so the export matches the preview exactly.
+   Per-type accents arrive as --a / --a2 inline vars from the component. */
+.aurora-cert {
+  position: relative;
+  width: 1123px;
+  height: 794px;
+  flex: none;
+  overflow: hidden;
+  border-radius: 26px;
+  container-type: inline-size;
+  font-family: var(--font-display), var(--font-geist-sans), system-ui, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(120% 90% at 8% -10%, color-mix(in srgb, var(--a) 22%, transparent), transparent 55%),
+    radial-gradient(120% 90% at 104% 8%, color-mix(in srgb, var(--a2) 20%, transparent), transparent 52%),
+    radial-gradient(120% 120% at 100% 108%, color-mix(in srgb, var(--a) 14%, transparent), transparent 55%),
+    #ffffff;
+}
+.aurora-cert::before {
+  content: "";
+  position: absolute;
+  inset: 3.1cqw;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--a) 34%, rgba(20, 30, 60, 0.1));
+  pointer-events: none;
+  z-index: 3;
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(14px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.aurora-blob-a {
+  width: 26cqw; height: 26cqw; left: -6cqw; bottom: -8cqw;
+  background: radial-gradient(circle at 40% 40%, color-mix(in srgb, var(--a) 55%, transparent), transparent 70%);
+}
+.aurora-blob-b {
+  width: 18cqw; height: 18cqw; right: 3cqw; top: -6cqw;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--a2) 50%, transparent), transparent 70%);
+}
+
+.aurora-inner {
+  position: absolute;
+  inset: 3.1cqw;
+  padding: 4.4cqw 6cqw;
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+}
+
+/* header */
+.aurora-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 2cqw; }
+.aurora-brand { display: flex; align-items: center; gap: 1.3cqw; }
+.aurora-crest {
+  width: 5cqw; height: 5cqw; border-radius: 1.4cqw; flex: none;
+  display: grid; place-items: center; overflow: hidden;
+  background: linear-gradient(135deg, var(--a), var(--a2));
+  box-shadow: 0 1.2cqw 2.4cqw -1cqw color-mix(in srgb, var(--a) 80%, transparent);
+  color: #fff; font-weight: 600; font-size: 2.6cqw;
+}
+.aurora-crest-img { width: 100%; height: 100%; object-fit: contain; }
+.aurora-org-name { font-weight: 700; font-size: 1.5cqw; letter-spacing: 0.02em; }
+.aurora-org-sub {
+  font-size: 1.05cqw; color: var(--muted);
+  letter-spacing: 0.22em; text-transform: uppercase;
+}
+.aurora-serial { text-align: right; }
+.aurora-serial-k {
+  font-size: 0.95cqw; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted);
+}
+.aurora-serial-v {
+  font-size: 1.25cqw; font-weight: 600; letter-spacing: 0.06em; color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* center */
+.aurora-body {
+  flex: 1; display: flex; flex-direction: column; justify-content: center;
+  gap: 1cqw; padding: 2cqw 0;
+}
+.aurora-kicker {
+  align-self: flex-start;
+  font-size: 1.1cqw; font-weight: 600; letter-spacing: 0.34em; text-transform: uppercase;
+  color: var(--a);
+}
+.aurora-lead { font-size: 1.35cqw; color: var(--ink-soft); margin: 0.6cqw 0 0; }
+.aurora-recipient {
+  font-weight: 700; font-size: 6cqw; line-height: 1; letter-spacing: -0.015em;
+  margin: 0.4cqw 0 0.2cqw; width: fit-content;
+  background: linear-gradient(100deg, var(--a), var(--a2) 70%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.aurora-rule {
+  height: 1px; width: 44%;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--a) 60%, transparent), transparent);
+}
+.aurora-cite {
+  font-size: 1.5cqw; line-height: 1.55; color: var(--ink-soft);
+  max-width: 62cqw; margin: 1.4cqw 0 0;
+}
+
+/* footer */
+.aurora-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 3cqw; margin-top: auto; }
+.aurora-sig { min-width: 20cqw; }
+.aurora-sig-line { height: 1px; background: color-mix(in srgb, var(--ink) 22%, transparent); margin-bottom: 1cqw; }
+.aurora-sig-name { font-size: 1.7cqw; font-weight: 600; }
+.aurora-sig-role {
+  font-size: 1.05cqw; color: var(--muted);
+  letter-spacing: 0.16em; text-transform: uppercase; margin-top: 0.3cqw;
+}
+.aurora-meta { text-align: center; }
+.aurora-meta-k { font-size: 0.95cqw; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted); }
+.aurora-meta-v { font-size: 1.3cqw; font-weight: 600; margin-top: 0.3cqw; }
+
+.aurora-seal { position: relative; width: 8.4cqw; height: 8.4cqw; flex: none; display: grid; place-items: center; }
+.aurora-seal-ring { position: absolute; inset: 0; width: 100%; height: 100%; }
+.aurora-seal-text { font-size: 6.4px; letter-spacing: 2.1px; fill: var(--muted); }
+.aurora-seal-core {
+  width: 5.4cqw; height: 5.4cqw; border-radius: 50%;
+  display: grid; place-items: center; color: #fff;
+  background: linear-gradient(135deg, var(--a), var(--a2));
+  box-shadow: 0 0 0 0.5cqw color-mix(in srgb, var(--a) 18%, transparent),
+    0 1cqw 2cqw -0.6cqw color-mix(in srgb, var(--a) 80%, transparent);
+}
+.aurora-seal-core svg { width: 2.8cqw; height: 2.8cqw; }
+
+.aurora-verify {
+  position: absolute; left: 6cqw; bottom: 1.6cqw;
+  font-size: 0.95cqw; letter-spacing: 0.06em; color: var(--muted);
+}
+
+/* ---- Certificate canvas: scale the fixed 1123×794 node to fit width ---- */
+.cert-canvas {
+  container-type: inline-size;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 26px;
+  box-shadow: 0 40px 90px -40px rgba(40, 52, 92, 0.55);
+}
+.cert-canvas-scale {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+  /* transform: scale(N) is set inline by CertificateCanvas after measuring. */
+}

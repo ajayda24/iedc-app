@@ -82,6 +82,9 @@ export interface EventRow {
   benefit_certificate: boolean
   benefit_activity_points: boolean
   status: EventStatus
+  // Which code certificate template this event's certificates render with.
+  // null -> app falls back to a category default, then 'aurora'.
+  certificate_template: string | null
   created_by: string | null
   created_at: string
   updated_at: string
@@ -112,7 +115,27 @@ export interface Certificate {
   event_id: string | null
   certificate_type: CertificateType
   certificate_url: string | null
+  // Public verification code, e.g. "IEDC-2026-0A7F3C". Set by a DB trigger.
+  serial: string
   issued_at: string
+}
+
+// The `certificate_public` view — an anon-readable, hand-picked projection used
+// by the public /certificates/[id] verify page. Exposes only non-sensitive
+// credential fields (no email/phone/points). See certificates-module.sql.
+export interface CertificatePublic {
+  id: string
+  serial: string
+  certificate_type: CertificateType
+  issued_at: string
+  recipient_name: string
+  recipient_id: string
+  recipient_avatar: string | null
+  event_id: string | null
+  event_title: string | null
+  event_category: EventCategory | null
+  event_date: string | null
+  certificate_template: string | null
 }
 
 export interface Notification {

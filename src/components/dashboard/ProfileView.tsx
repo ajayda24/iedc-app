@@ -186,17 +186,13 @@ export default function ProfileView({
                         {CERT_LABEL[c.certificate_type]} · {fullDate(c.issued_at)}
                       </p>
                     </div>
-                    {c.certificate_url && (
-                      <a
-                        href={c.certificate_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-indigo shrink-0"
-                        aria-label="Open certificate"
-                      >
-                        <Icon name="link" className="w-4 h-4" />
-                      </a>
-                    )}
+                    <Link
+                      href={`/certificates/${c.serial}`}
+                      className="text-indigo shrink-0"
+                      aria-label="View certificate"
+                    >
+                      <Icon name="arrow" className="w-4 h-4" />
+                    </Link>
                   </li>
                 ))}
               </ul>

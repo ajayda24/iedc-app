@@ -69,6 +69,7 @@ sent to the email on file.
 3. **`rls.sql`** — Row Level Security policies + column-level grants
 4. **`views.sql`** — leaderboard & department/year stat views (read from `profiles_current`)
 5. **`view-security.sql`** — `security_invoker` + role grants so views respect table RLS (run LAST, after the views exist)
+6. **`certificates-module.sql`** — adds `events.certificate_template`, `certificates.serial` (+ trigger/backfill), and the anon-readable `certificate_public` view for the public /certificates/[id] verify page. Certificates are code-designed (JSX templates), not uploaded files.
 
 > **Always query the `students_current` and `profiles_current` views** for display —
 > they expose live `year`, `is_active`, `is_alumni`. The base `students`/`profiles`

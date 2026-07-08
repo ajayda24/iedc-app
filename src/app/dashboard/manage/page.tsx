@@ -136,15 +136,24 @@ function ManageRow({
       : `${registered}`
 
   return (
-    <li className="flex flex-wrap items-center gap-3 px-4 sm:px-5 py-3.5">
+    <li className="relative flex flex-wrap items-center gap-3 px-4 sm:px-5 py-3.5 transition-colors hover:bg-white/50">
+      {/* Row-level link: a stretched overlay so clicking anywhere on the row
+          opens the event's overview/manage page. The interactive action
+          buttons below sit above it via `relative z-10` and stay clickable. */}
+      <Link
+        href={`/dashboard/manage/${ev.id}/overview`}
+        aria-label={`Manage ${ev.title}`}
+        className="absolute inset-0 z-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo/40"
+      />
+
       {/* Date chip */}
-      <span className="grid place-items-center w-12 h-12 rounded-2xl bg-indigo/10 text-indigo shrink-0 leading-none">
+      <span className="relative z-10 grid place-items-center w-12 h-12 rounded-2xl bg-indigo/10 text-indigo shrink-0 leading-none pointer-events-none">
         <span className="font-display font-bold text-sm">{chip.day}</span>
         <span className="text-[0.6rem] font-semibold">{chip.mon}</span>
       </span>
 
       {/* Title + meta */}
-      <div className="min-w-0 flex-1">
+      <div className="relative z-10 min-w-0 flex-1 pointer-events-none">
         <div className="flex items-center gap-2 min-w-0">
           <p className="font-semibold truncate min-w-0">{ev.title}</p>
           <span className="shrink-0">
@@ -158,13 +167,14 @@ function ManageRow({
       </div>
 
       {/* Registrations */}
-      <div className="flex items-center gap-1.5 text-sm text-ink-soft shrink-0">
+      <div className="relative z-10 flex items-center gap-1.5 text-sm text-ink-soft shrink-0 pointer-events-none">
         <Icon name="team" className="w-4 h-4 text-muted" />
         {cap}
       </div>
 
-      {/* Actions — full width below the meta on mobile, inline on desktop */}
-      <div className="w-full sm:w-auto flex justify-end min-w-0">
+      {/* Actions — full width below the meta on mobile, inline on desktop.
+          `z-10` keeps these above the row overlay so they remain clickable. */}
+      <div className="relative z-10 w-full sm:w-auto flex justify-end min-w-0">
         <ManageEventActions
           eventId={ev.id}
           title={ev.title}
