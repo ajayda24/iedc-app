@@ -202,6 +202,12 @@ const paths: Record<string, React.ReactNode> = {
       <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
     </>
   ),
+  upload: (
+    <>
+      <path d="M12 21V9m0 0 4 4m-4-4-4 4" />
+      <path d="M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2" />
+    </>
+  ),
   image: (
     <>
       <rect x="3.5" y="4.5" width="17" height="15" rx="2.5" />
