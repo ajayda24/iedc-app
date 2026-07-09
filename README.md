@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# IEDC Hub
 
-## Getting Started
+An events, leaderboard, and certificate platform for a college IEDC (Innovation
+& Entrepreneurship Development Cell). Students discover and register for events,
+climb a monthly leaderboard, and collect verifiable certificates; coordinators
+and admins run the whole thing from a role-based dashboard.
 
-First, run the development server:
+Built with **Next.js 16** (App Router, React 19), **Supabase** (Postgres + Auth
++ Storage, RLS-secured), and **Tailwind CSS v4**.
+
+## Features
+
+- **Animated landing page** — 3D ambient canvas + scroll-driven "road journey".
+- **Events** — browse, filter, and register in one tap; capacity, deadlines, and
+  attendance tracking.
+- **Leaderboard** — all-time and **monthly** boards (derived from date, so the
+  month resets with no cron), plus per-department / per-year rankings.
+- **Certificates** — code-designed templates rendered to A4 and exported as
+  PNG/PDF; each has a public, anon-verifiable link (shareable on LinkedIn).
+- **Profiles** — resume-style pages with activity timeline, certificates,
+  monthly-honour badges, and social links.
+- **Staff dashboard** — create/publish/manage events, mark attendance, score
+  participants, and issue certificates.
+- **Admin tools** — student roster (with Excel import), and users & roles.
+- **Analytics** — participation and points dashboards with custom SVG charts.
+- **Role-based access** — student / coordinator / admin, enforced in the app
+  *and* by Postgres Row-Level Security.
+
+## Tech stack
+
+Next.js 16 · React 19 · TypeScript · Tailwind CSS v4 · Supabase
+(Postgres, Auth, Storage) · three.js / react-three-fiber · GSAP + Lenis ·
+html-to-image + jsPDF (certificate export).
+
+## Getting started
+
+### 1. Prerequisites
+
+- Node.js 20+
+- A [Supabase](https://supabase.com) project (free tier is fine)
+
+### 2. Install
+
+```bash
+npm install
+```
+
+### 3. Environment
+
+Create a `.env` file in the project root:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key   # server-only, keep secret
+```
+
+### 4. Database
+
+Run the SQL files in `src/supabase/` in your Supabase SQL editor, in order:
+
+```
+schema.sql → rls.sql → roster-lifecycle.sql → views.sql →
+view-security.sql → profile-fields.sql → migrations-dashboard.sql →
+leaderboard-monthly.sql → certificates-module.sql → avatars-bucket.sql
+```
+
+(`seed.sql` optionally loads sample data.)
+
+### 5. Run
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command             | Description                          |
+| ------------------- | ------------------------------------ |
+| `npm run dev`       | Start the dev server                 |
+| `npm run build`     | Production build                     |
+| `npm run start`     | Serve the production build           |
+| `npm run lint`      | Lint with ESLint                     |
+| `npm run seed:roster` | Seed the student roster            |
 
-## Learn More
+## Project structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+├─ app/                 # routes (landing, auth, dashboard/*, certificates/*)
+├─ components/          # landing, dashboard, and certificate UI
+├─ lib/                 # queries, auth, certificate config, Supabase clients
+└─ supabase/            # SQL: schema, RLS, views, modules
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Contributing
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Contributions are welcome — open an issue or a pull request. Please run
+`npm run lint` and `npm run build` before submitting.
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open source. A license file hasn't been added yet — MIT is recommended; drop a
+`LICENSE` file in the root to make it official.
