@@ -15,7 +15,7 @@ export default async function DashboardLayout({
 
   return (
     <SearchProvider>
-      <div className="min-h-screen lg:flex">
+      <div className="dashboard-shell min-h-screen lg:flex">
         <Sidebar role={profile.role} />
 
         <div className="flex-1 min-w-0 flex flex-col">

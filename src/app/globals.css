@@ -100,6 +100,36 @@ html.lenis body {
   -webkit-backdrop-filter: blur(14px) saturate(130%);
 }
 
+/* ---- Dashboard shell ----
+   Cards were reading as stark white boxes floating on the tinted page. Inside
+   the dashboard we flatten the page to near-white and let cards sit flat —
+   defined by a hairline border and an almost-invisible shadow, not by contrast.
+   Scoped to `.dashboard-shell` so login / landing / certificate pages keep the
+   original `.glass`. Revert by deleting this block and removing the
+   `dashboard-shell` class from the dashboard layout. */
+.dashboard-shell {
+  /* The soft colored wash — same blobs as the marketing page, gently toned. */
+  background:
+    radial-gradient(900px 600px at 8% -8%, rgba(122, 108, 255, 0.08), transparent 60%),
+    radial-gradient(900px 700px at 108% 10%, rgba(116, 208, 255, 0.07), transparent 55%),
+    radial-gradient(800px 800px at 0% 100%, rgba(255, 176, 136, 0.05), transparent 55%),
+    radial-gradient(800px 800px at 100% 100%, rgba(95, 227, 192, 0.06), transparent 55%),
+    var(--bg);
+}
+.dashboard-shell .glass {
+  /* Translucent, not white — the page's colored wash bleeds through so cards
+     inherit the background tint instead of reading as flat white boxes. */
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  /* Soft top highlight + a low, tight shadow: reads as glass set into the page. */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 1px 1px rgba(40, 52, 92, 0.03),
+    0 8px 22px -16px rgba(40, 52, 92, 0.16);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+}
+
 /* ---- Overlay / popover transitions ---- */
 /* Popover (dropdown menus, notification sheet): fade + slight rise/scale. */
 .anim-pop {
