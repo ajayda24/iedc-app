@@ -422,7 +422,8 @@ html.lenis body {
 .aurora-recipient {
   font-weight: 700; font-size: 6cqw; line-height: 1; letter-spacing: -0.015em;
   margin: 0.4cqw 0 0.2cqw; width: fit-content;
-  background: linear-gradient(100deg, var(--a), var(--a2) 70%);
+  /* --name-grad is set per variant (falls back to the accent gradient). */
+  background: var(--name-grad);
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 .aurora-rule {
@@ -433,36 +434,76 @@ html.lenis body {
   font-size: 1.5cqw; line-height: 1.55; color: var(--ink-soft);
   max-width: 62cqw; margin: 1.4cqw 0 0;
 }
+/* Highlighted phrases inside the citation (event name, date, placement):
+   bold + a configurable color (--hi, set per variant; defaults to the accent). */
+.aurora-hi {
+  color: var(--hi);
+  font-weight: 700;
+}
 
-/* footer */
-.aurora-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 3cqw; margin-top: auto; }
-.aurora-sig { min-width: 20cqw; }
-.aurora-sig-line { height: 1px; background: color-mix(in srgb, var(--ink) 22%, transparent); margin-bottom: 1cqw; }
-.aurora-sig-name { font-size: 1.7cqw; font-weight: 600; }
+/* ---- Watermark: large faint seal centered behind the content ---- */
+.aurora-watermark {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  height: auto; /* width set inline from config.scale */
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 1;               /* above the background, below .aurora-inner (z 2) */
+  filter: grayscale(1);     /* neutral like a printed watermark */
+}
+
+/* ---- Footer: two signatures flanking a centered logo strip ---- */
+.aurora-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2cqw;
+  margin-top: auto;
+}
+.aurora-sig { min-width: 16cqw; max-width: 20cqw; text-align: center; }
+/* Handwritten signature image (or the scribble fallback) sits just above the
+   ruled line. Fixed height so both signatures align regardless of image size. */
+.aurora-sig-img {
+  height: 3.4cqw; width: auto; max-width: 100%;
+  object-fit: contain; object-position: center bottom;
+  margin: 0 auto 0.4cqw;
+  display: block;
+}
+.aurora-sig-scribble {
+  height: 3.4cqw; margin-bottom: 0.4cqw;
+  /* A subtle placeholder flourish so an unsigned cert still looks intentional. */
+  background:
+    radial-gradient(1.2cqw 0.5cqw at 30% 60%, color-mix(in srgb, var(--ink) 20%, transparent), transparent 70%),
+    radial-gradient(1.6cqw 0.6cqw at 60% 45%, color-mix(in srgb, var(--ink) 16%, transparent), transparent 70%);
+  opacity: 0.5;
+}
+.aurora-sig-line { height: 1px; background: color-mix(in srgb, var(--ink) 30%, transparent); margin-bottom: 0.8cqw; }
+.aurora-sig-name { font-size: 1.5cqw; font-weight: 600; }
 .aurora-sig-role {
-  font-size: 1.05cqw; color: var(--muted);
-  letter-spacing: 0.16em; text-transform: uppercase; margin-top: 0.3cqw;
+  font-size: 0.95cqw; color: var(--muted);
+  letter-spacing: 0.12em; text-transform: uppercase; margin-top: 0.25cqw;
 }
-.aurora-meta { text-align: center; }
-.aurora-meta-k { font-size: 0.95cqw; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted); }
-.aurora-meta-v { font-size: 1.3cqw; font-weight: 600; margin-top: 0.3cqw; }
 
-.aurora-seal { position: relative; width: 8.4cqw; height: 8.4cqw; flex: none; display: grid; place-items: center; }
-.aurora-seal-ring { position: absolute; inset: 0; width: 100%; height: 100%; }
-.aurora-seal-text { font-size: 6.4px; letter-spacing: 2.1px; fill: var(--muted); }
-.aurora-seal-core {
-  width: 5.4cqw; height: 5.4cqw; border-radius: 50%;
-  display: grid; place-items: center; color: #fff;
-  background: linear-gradient(135deg, var(--a), var(--a2));
-  box-shadow: 0 0 0 0.5cqw color-mix(in srgb, var(--a) 18%, transparent),
-    0 1cqw 2cqw -0.6cqw color-mix(in srgb, var(--a) 80%, transparent);
+/* Centered partner-logo strip. Logos scale to a common height and space out. */
+.aurora-logos {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.4cqw;
+  padding-bottom: 0.4cqw;
 }
-.aurora-seal-core svg { width: 2.8cqw; height: 2.8cqw; }
+.aurora-logo-img {
+  height: 4.2cqw; width: auto; max-width: 14cqw;
+  object-fit: contain;
+}
 
 .aurora-verify {
   position: absolute; left: 6cqw; bottom: 1.6cqw;
   font-size: 0.95cqw; letter-spacing: 0.06em; color: var(--muted);
 }
+.aurora-verify-sep { opacity: 0.5; }
 
 /* ---- Certificate canvas: scale the fixed 1123×794 node to fit width ---- */
 .cert-canvas {

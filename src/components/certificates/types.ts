@@ -19,8 +19,21 @@ export interface CertificateData {
   serial: string
   /** Absolute or relative URL this certificate verifies at (for the QR / footer). */
   verifyUrl: string
-  /** Signatory block. App-level config for now; wire to org settings later. */
-  signatory: { name: string; role: string }
+  /** Signatory blocks printed in the footer (e.g. nodal officer + principal). */
+  signatories: {
+    name: string
+    role: string
+    signatureUrl: string | null
+  }[]
+  /** Partner / affiliation logos shown centered in the footer. */
+  logos: { src: string; alt: string }[]
+  /** Faint centered watermark (e.g. university seal). `src` null = disabled. */
+  watermark: {
+    src: string | null
+    alt: string
+    opacity: number
+    scale: number
+  }
   /** Org identity shown in the header/seal. */
   org: { name: string; tagline: string; logoUrl: string | null }
 }
@@ -33,15 +46,40 @@ export interface CertificateTypeVariant {
   accent: string
   /** Secondary accent for gradients. */
   accent2: string
+  /**
+   * Color of the highlighted phrases in the citation (event name, date, the
+   * placement). Optional — defaults to `accent` when omitted.
+   */
+  highlightColor?: string
+  /**
+   * CSS gradient (or any CSS color) for the recipient's name. Optional —
+   * defaults to `linear-gradient(100deg, accent, accent2 70%)` when omitted.
+   * e.g. 'linear-gradient(100deg, #7a6cff, #6c8cff 70%)' or a solid '#0e1525'.
+   */
+  nameGradient?: string
   /** Uppercase kicker, e.g. "Certificate of Participation". */
   kicker: string
   /** Lead-in line above the name, e.g. "This certifies that". */
   lead: string
   /**
-   * Builds the citation sentence under the name. Receives the resolved event
-   * title (already falls back to a sensible phrase when there's no event).
+   * Builds the citation sentence under the name as JSX. Receives helpers so
+   * each variant can emphasize the meaningful bits (event name, date, the
+   * placement) via `hi(...)` — which renders them in the accent, bold.
    */
-  citation: (eventTitle: string) => string
+  citation: (parts: CitationParts) => React.ReactNode
+}
+
+// Helpers passed to a variant's `citation()` so it can compose a sentence with
+// selected phrases highlighted.
+export interface CitationParts {
+  /** The event title, already highlighted (or a fallback phrase if no event). */
+  event: React.ReactNode
+  /** The event date, already highlighted (empty node when there's no date). */
+  date: React.ReactNode
+  /** True when this certificate has a real event (vs. the generic fallback). */
+  hasEvent: boolean
+  /** Wrap any text to render it highlighted (accent color, bold). */
+  hi: (text: string) => React.ReactNode
 }
 
 // A certificate template: an id, display metadata, and a pure React component.

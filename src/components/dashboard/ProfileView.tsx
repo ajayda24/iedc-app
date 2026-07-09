@@ -109,17 +109,17 @@ export default function ProfileView({
               </ContactChip>
             )}
             {profile.github && (
-              <ContactChip icon="github" href={profile.github}>
+              <ContactChip icon="github" href={profile.github} iconColor="#57606a">
                 GitHub
               </ContactChip>
             )}
             {profile.linkedin && (
-              <ContactChip icon="linkedin" href={profile.linkedin}>
+              <ContactChip icon="linkedin" href={profile.linkedin} iconColor="#4a90d9">
                 LinkedIn
               </ContactChip>
             )}
             {profile.website && (
-              <ContactChip icon="globe" href={profile.website}>
+              <ContactChip icon="globe" href={profile.website} iconColor="#9a8fff">
                 Website
               </ContactChip>
             )}
@@ -285,10 +285,13 @@ function ContactChip({
   icon,
   href,
   children,
+  iconColor,
 }: {
   icon: string
   href: string
   children: React.ReactNode
+  // Brand color for the icon (e.g. GitHub/LinkedIn). Omit for the neutral tint.
+  iconColor?: string
 }) {
   const external = href.startsWith('http')
   return (
@@ -298,7 +301,11 @@ function ContactChip({
       rel={external ? 'noopener noreferrer' : undefined}
       className="inline-flex items-center gap-2 rounded-full bg-white/60 hover:bg-white px-3.5 py-1.5 text-sm font-medium text-ink-soft transition-colors"
     >
-      <Icon name={icon} className="w-4 h-4" />
+      <Icon
+        name={icon}
+        className="w-4 h-4"
+        style={iconColor ? { color: iconColor } : undefined}
+      />
       {children}
     </a>
   )

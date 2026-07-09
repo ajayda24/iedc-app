@@ -1,6 +1,11 @@
 import type { CertificatePublic } from '@/lib/supabase/database.types'
 import type { CertificateData } from '@/components/certificates/types'
-import { CERT_ORG, CERT_SIGNATORY } from './config'
+import {
+  CERT_ORG,
+  CERT_SIGNATORIES,
+  CERT_LOGOS,
+  CERT_WATERMARK,
+} from './config'
 
 // "5 July 2026" — the human date printed on certificates. Distinct from the
 // dashboard's fullDate() (which includes the weekday); a certificate reads
@@ -29,7 +34,18 @@ export function toCertificateData(
     issuedDate: certDate(row.issued_at),
     serial: row.serial,
     verifyUrl: `${origin}/certificates/${row.serial}`,
-    signatory: { name: CERT_SIGNATORY.name, role: CERT_SIGNATORY.role },
+    signatories: CERT_SIGNATORIES.map((s) => ({
+      name: s.name,
+      role: s.role,
+      signatureUrl: s.signatureUrl,
+    })),
+    logos: CERT_LOGOS.map((l) => ({ src: l.src, alt: l.alt })),
+    watermark: {
+      src: CERT_WATERMARK.src,
+      alt: CERT_WATERMARK.alt,
+      opacity: CERT_WATERMARK.opacity,
+      scale: CERT_WATERMARK.scale,
+    },
     org: {
       name: CERT_ORG.name,
       tagline: CERT_ORG.tagline,

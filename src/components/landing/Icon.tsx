@@ -1,6 +1,7 @@
 type Props = {
   name: string;
   className?: string;
+  style?: React.CSSProperties;
 };
 
 const paths: Record<string, React.ReactNode> = {
@@ -224,11 +225,12 @@ const paths: Record<string, React.ReactNode> = {
   ),
 };
 
-export default function Icon({ name, className }: Props) {
+export default function Icon({ name, className, style }: Props) {
   return (
     <svg
       viewBox="0 0 24 24"
       className={className}
+      style={style}
       fill={
         ["star", "play", "github", "linkedin"].includes(name)
           ? "currentColor"
