@@ -2,27 +2,35 @@ import 'server-only'
 
 // Server-side auth/session helpers. These are the real security boundary —
 // call them inside Server Components, Server Actions, and Route Handlers.
+import { cache } from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { ProfileCurrent, UserRole } from '@/lib/supabase/database.types'
 
 // The authenticated auth user, validated against the Supabase auth server.
-export async function getUser() {
+//
+// Wrapped in React `cache()` so it runs AT MOST ONCE per request: a single
+// dashboard render used to fire 3–6 separate auth.getUser() network round-trips
+// (proxy → layout → each query helper), ~200ms each and sequential. cache()
+// collapses them into one shared in-flight promise per request, halving typical
+// navigation latency. Still validates against the auth server once — no change
+// to security. Other query files should call THIS, not supabase.auth.getUser()
+// directly, to share the cache.
+export const getUser = cache(async () => {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
   return user
-}
+})
 
-// The current user's profile (with derived year / is_active) or null.
-export async function getProfile(): Promise<ProfileCurrent | null> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+// The current user's profile (with derived year / is_active) or null. Also
+// cached per request — the layout and multiple pages/queries read it.
+export const getProfile = cache(async (): Promise<ProfileCurrent | null> => {
+  const user = await getUser()
   if (!user) return null
 
+  const supabase = await createClient()
   // maybeSingle (not single): a missing profile is an expected state (e.g. a
   // brand-new auth user mid-signup), not an error to throw on. PGRST116 from
   // single() previously masked real RLS failures behind a generic null.
@@ -37,7 +45,7 @@ export async function getProfile(): Promise<ProfileCurrent | null> {
   }
 
   return (data as ProfileCurrent) ?? null
-}
+})
 
 // Any profile by id (for viewing someone else's profile page). RLS lets any
 // authenticated user read any profile row (profiles_select). Returns null if

@@ -33,9 +33,9 @@ function monthTick(ym: string): string {
 }
 
 export default async function AnalyticsPage() {
-  await requireStaff()
-
-  const [data, deptStats, yearStats, leaders] = await Promise.all([
+  // Gate + data in parallel so the staff auth hop doesn't block the queries.
+  const [, data, deptStats, yearStats, leaders] = await Promise.all([
+    requireStaff(),
     getAnalytics(12),
     getDepartmentStats(),
     getYearStats(),

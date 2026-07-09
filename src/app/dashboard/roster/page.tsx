@@ -5,8 +5,11 @@ import RosterManager from '@/components/dashboard/RosterManager'
 import RosterList from '@/components/dashboard/RosterList'
 
 export default async function RosterPage() {
-  await requireAdmin()
-  const all = await listRoster()
+  // Run the admin gate and the data fetch concurrently instead of sequentially —
+  // the gate's ~200ms auth hop no longer blocks the query from starting. RLS is
+  // the real backstop, so kicking off the read early is safe; requireAdmin still
+  // redirects a non-admin before anything renders.
+  const [, all] = await Promise.all([requireAdmin(), listRoster()])
 
   const currentCount = all.filter((s) => !s.is_alumni).length
   const alumniCount = all.length - currentCount

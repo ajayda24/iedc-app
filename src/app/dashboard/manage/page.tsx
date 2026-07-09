@@ -25,16 +25,19 @@ export default async function ManageEventsPage({
 }: {
   searchParams: Promise<{ status?: string }>
 }) {
-  // Guard: coordinator + admin only. Both are is_staff(), so identical access.
-  await requireStaff()
+  // Guard (coordinator + admin), the event list, and searchParams all start
+  // together — the auth hop no longer blocks the list query. countRegistrations
+  // must wait since it needs the event ids.
+  const [, all, sp] = await Promise.all([
+    requireStaff(),
+    listEvents(),
+    searchParams,
+  ])
 
-  const sp = await searchParams
   const activeTab = TABS.some((t) => t.key === sp.status)
     ? (sp.status as EventStatus | 'all')
     : 'all'
 
-  // Staff see drafts too (RLS). Fetch all, then split by status in-memory.
-  const all = await listEvents()
   const events =
     activeTab === 'all' ? all : all.filter((e) => e.status === activeTab)
   const counts = await countRegistrationsByEvent(events.map((e) => e.id))

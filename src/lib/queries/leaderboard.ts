@@ -4,6 +4,7 @@ import 'server-only'
 // leaderboard_top3, department_stats, year_stats), which respect profiles RLS
 // via security_invoker — so a logged-in user is required.
 import { createClient } from '@/lib/supabase/server'
+import { getUser } from '@/lib/auth/queries'
 import type {
   LeaderboardRow,
   MonthlyLeaderboardRow,
@@ -131,10 +132,7 @@ export async function getMyMonthlyRank(
   month: string = monthKey(),
   window = 2
 ): Promise<{ me: MonthlyLeaderboardRow; around: MonthlyLeaderboardRow[] } | null> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return null
 
   const board = await getMonthlyLeaderboard(month)
@@ -166,10 +164,7 @@ export async function getProfileMonthlyPlacements(
 export async function getMyRank(
   window = 2
 ): Promise<{ me: LeaderboardRow; around: LeaderboardRow[] } | null> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return null
 
   const board = await getLeaderboard()

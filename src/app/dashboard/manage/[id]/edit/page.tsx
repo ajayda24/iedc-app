@@ -11,8 +11,7 @@ export default async function EditEventPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  await requireStaff()
-  const { id } = await params
+  const [, { id }] = await Promise.all([requireStaff(), params])
   const event = await getEvent(id)
   if (!event) notFound()
 

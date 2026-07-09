@@ -4,6 +4,7 @@ import 'server-only'
 // attendance marking is staff-only (enforced by RLS in rls.sql). Counters on
 // profiles auto-recompute via triggers when status changes.
 import { createClient } from '@/lib/supabase/server'
+import { getUser } from '@/lib/auth/queries'
 import type {
   EventRegistration,
   EventRow,
@@ -23,12 +24,10 @@ export type RegistrationWithProfile = EventRegistration & {
 export async function getMyRegistration(
   eventId: string
 ): Promise<EventRegistration | null> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return null
 
+  const supabase = await createClient()
   const { data } = await supabase
     .from('event_registrations')
     .select('*')
@@ -42,12 +41,10 @@ export async function getMyRegistration(
 export async function listMyRegistrations(): Promise<
   (EventRegistration & { event: EventRow })[]
 > {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return []
 
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('event_registrations')
     .select('*, event:events(*)')
@@ -78,12 +75,10 @@ export async function listRegistrationsFor(
 export async function registerForEvent(
   eventId: string
 ): Promise<EventRegistration> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) throw new Error('Not authenticated')
 
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('event_registrations')
     .insert({ event_id: eventId, profile_id: user.id, status: 'registered' })
@@ -95,12 +90,10 @@ export async function registerForEvent(
 
 // Cancel the current user's own registration.
 export async function cancelRegistration(eventId: string): Promise<void> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) throw new Error('Not authenticated')
 
+  const supabase = await createClient()
   const { error } = await supabase
     .from('event_registrations')
     .update({ status: 'cancelled' })

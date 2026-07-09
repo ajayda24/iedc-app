@@ -20,8 +20,8 @@ export default async function EventOverviewPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  await requireStaff()
-  const { id } = await params
+  // Gate + params together, then the id-dependent data.
+  const [, { id }] = await Promise.all([requireStaff(), params])
   const [event, regs, certs] = await Promise.all([
     getEvent(id),
     listEventRegistrations(id),

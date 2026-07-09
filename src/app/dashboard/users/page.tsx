@@ -4,8 +4,8 @@ import { StatCard } from '@/components/dashboard/ui'
 import UsersDirectory from '@/components/dashboard/UsersDirectory'
 
 export default async function UsersPage() {
-  const me = await requireAdmin()
-  const users = await listUsers()
+  // Gate + user list in parallel (auth hop no longer blocks the query).
+  const [me, users] = await Promise.all([requireAdmin(), listUsers()])
 
   const admins = users.filter((u) => u.role === 'admin').length
   const coordinators = users.filter((u) => u.role === 'coordinator').length

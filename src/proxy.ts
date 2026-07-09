@@ -13,6 +13,14 @@ import { NextResponse, type NextRequest } from 'next/server'
 const PROTECTED_PREFIXES = ['/dashboard']
 
 export async function proxy(request: NextRequest) {
+  // Skip RSC prefetches: the router fires these in the background as links enter
+  // the viewport. They don't need gating (the real navigation will be gated) and
+  // running auth on each just adds latency to every hover/scroll. The eventual
+  // click still passes through here as a normal request.
+  if (request.headers.get('next-router-prefetch') === '1') {
+    return NextResponse.next({ request })
+  }
+
   let response = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -36,16 +44,19 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  // Touching getUser() refreshes the session and rewrites cookies if needed.
-  // Use getUser (validates with the auth server), NOT getSession, for gating.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Gate with getClaims(): it verifies the JWT signature LOCALLY against the
+  // project's cached JWKS — no auth-server round-trip per request (getUser()
+  // hit the network ~200ms every navigation AND every RSC prefetch, the biggest
+  // source of sluggish page switches). This still refreshes the session cookie
+  // (the SSR client does that while reading claims). The middleware is NOT the
+  // security boundary anyway — Server Components/Actions call getUser() and RLS
+  // enforces access; here we only need a fast "is there a valid session" check.
+  const { data: claims } = await supabase.auth.getClaims()
 
   const { pathname } = request.nextUrl
   const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p))
 
-  if (isProtected && !user) {
+  if (isProtected && !claims) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     url.searchParams.set('redirect', pathname)

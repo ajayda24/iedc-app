@@ -3,6 +3,7 @@ import 'server-only'
 // Certificates. Students see their own (RLS); staff can issue them. Issuing a
 // certificate auto-increments the profile's total_certificates via trigger.
 import { createClient } from '@/lib/supabase/server'
+import { getUser } from '@/lib/auth/queries'
 import type {
   Certificate,
   CertificatePublic,
@@ -14,12 +15,10 @@ import type {
 export async function listMyCertificates(): Promise<
   (Certificate & { event: EventRow | null })[]
 > {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return []
 
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('certificates')
     .select('*, event:events(*)')

@@ -16,8 +16,7 @@ export default async function EventScoresPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  await requireStaff()
-  const { id } = await params
+  const [, { id }] = await Promise.all([requireStaff(), params])
   const [event, regs, scores] = await Promise.all([
     getEvent(id),
     listEventRegistrations(id),
