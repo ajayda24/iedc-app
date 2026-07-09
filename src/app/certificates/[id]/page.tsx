@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getPublicCertificate } from '@/lib/queries'
+import { getUser } from '@/lib/auth/queries'
 import { toCertificateData } from '@/lib/certificates/render-data'
 import CertificateCanvas from '@/components/certificates/CertificateCanvas'
 import CertificateActions from '@/components/certificates/CertificateActions'
@@ -48,8 +49,18 @@ export default async function CertificatePage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const [cert, h] = await Promise.all([getPublicCertificate(id), headers()])
+  const [cert, h, user] = await Promise.all([
+    getPublicCertificate(id),
+    headers(),
+    getUser(),
+  ])
   if (!cert) notFound()
+
+  // Adaptive "back" target: a logged-in viewer returns to their dashboard
+  // certificates list; an anonymous visitor (shared link) goes to the home page.
+  const back = user
+    ? { href: '/dashboard/certificates', label: 'Back to Certificates' }
+    : { href: '/', label: 'Back to Home' }
 
   // Absolute origin from the request, so the verify URL / copy-link work when
   // shared. Falls back to a relative path if the proxy strips these headers.
@@ -60,7 +71,7 @@ export default async function CertificatePage({
   const data = toCertificateData(cert, origin)
 
   return (
-    <main className="min-h-screen px-4 py-8 sm:py-12">
+    <main className="min-h-screen px-4 py-8 sm:py-12 pb-24">
       <div className="mx-auto max-w-4xl flex flex-col gap-6">
         {/* header strip */}
         <div className="flex items-center justify-between gap-4">
@@ -71,10 +82,19 @@ export default async function CertificatePage({
             <Icon name="logo" className="w-7 h-7 text-indigo" />
             IEDC Hub
           </Link>
-          <span className="inline-flex items-center gap-2 rounded-full bg-mint/15 px-3 py-1 text-sm font-semibold text-mint">
-            <Icon name="shield" className="w-4 h-4" />
-            Verified credential
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-2 rounded-full bg-mint/15 px-3 py-1 text-sm font-semibold text-mint">
+              <Icon name="shield" className="w-4 h-4" />
+              Verified credential
+            </span>
+            <Link
+              href={back.href}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-black/10 px-3 py-1.5 text-sm font-semibold text-ink-soft hover:bg-white/60 transition-colors"
+            >
+              <Icon name="chevron-left" className="w-4 h-4" />
+              {back.label}
+            </Link>
+          </div>
         </div>
 
         {/* the certificate */}
@@ -114,6 +134,30 @@ export default async function CertificatePage({
           />
         </div>
       </div>
+
+      {/* Fixed bottom navigation bar — the public certificate page sits outside
+          the dashboard shell, so it has no bottom nav of its own. The "Home"
+          button is the adaptive target: a logged-in viewer returns to their
+          dashboard certificates list; an anonymous visitor goes to the site
+          home. A secondary "Back" text link always goes to the site home. */}
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-black/5 bg-white/80 backdrop-blur-md">
+        <div className="mx-auto max-w-4xl px-4 py-3 flex items-center justify-between gap-3">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-black/5 transition-colors"
+          >
+            <Icon name="chevron-left" className="w-4 h-4" />
+            Back
+          </Link>
+          <Link
+            href={back.href}
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold text-indigo hover:bg-indigo/5 transition-colors"
+          >
+            <Icon name="home" className="w-4 h-4" />
+            {user ? 'Certificates' : 'Home'}
+          </Link>
+        </div>
+      </nav>
     </main>
   )
 }

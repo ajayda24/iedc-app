@@ -77,12 +77,13 @@ export default async function CertificatesPage({
       </div>
 
       {/* Summary tiles */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
         <StatCard
           icon="certificate"
           label="Total"
           value={all.length}
           tint="mint"
+          compact
         />
         {counts.slice(0, 3).map((c) => (
           <StatCard
@@ -97,6 +98,7 @@ export default async function CertificatesPage({
                   ? 'blue'
                   : 'indigo'
             }
+            compact
           />
         ))}
       </div>
@@ -190,7 +192,9 @@ function FilterRow({
   otherParam: [string, string | undefined]
 }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    // Mobile: single horizontally-scrollable row (no wrap) so filters take one
+    // thin line; desktop (sm+) wraps inline. Mirrors the events page.
+    <div className="flex flex-nowrap sm:flex-wrap gap-2 overflow-x-auto sm:overflow-visible no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
       {items.map((item) => {
         const params = new URLSearchParams()
         if (item.key) params.set(param, item.key)
@@ -202,7 +206,7 @@ function FilterRow({
           <Link
             key={item.key || 'all'}
             href={qs ? `/dashboard/certificates?${qs}` : '/dashboard/certificates'}
-            className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            className={`shrink-0 px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors ${
               active
                 ? 'bg-indigo text-white'
                 : 'bg-white/60 text-ink-soft hover:bg-white'

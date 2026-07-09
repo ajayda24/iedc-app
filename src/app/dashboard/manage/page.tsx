@@ -136,7 +136,7 @@ function ManageRow({
       : `${registered}`
 
   return (
-    <li className="relative flex flex-wrap items-center gap-3 px-4 sm:px-5 py-3.5 transition-colors hover:bg-white/50">
+    <li className="relative flex flex-wrap items-center gap-x-3 gap-y-2 px-3 sm:px-5 py-3.5 transition-colors hover:bg-white/50">
       {/* Row-level link: a stretched overlay so clicking anywhere on the row
           opens the event's overview/manage page. The interactive action
           buttons below sit above it via `relative z-10` and stay clickable. */}
@@ -147,12 +147,15 @@ function ManageRow({
       />
 
       {/* Date chip */}
-      <span className="relative z-10 grid place-items-center w-12 h-12 rounded-2xl bg-indigo/10 text-indigo shrink-0 leading-none pointer-events-none">
+      <span className="relative z-10 grid place-items-center w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-indigo/10 text-indigo shrink-0 leading-none pointer-events-none">
         <span className="font-display font-bold text-sm">{chip.day}</span>
         <span className="text-[0.6rem] font-semibold">{chip.mon}</span>
       </span>
 
-      {/* Title + meta */}
+      {/* Title + meta — takes all remaining width so the title stays readable.
+          The registrations count lives in the meta line on mobile (freeing the
+          whole top line for the title + status pill) and moves out to its own
+          column on desktop where there's room. */}
       <div className="relative z-10 min-w-0 flex-1 pointer-events-none">
         <div className="flex items-center gap-2 min-w-0">
           <p className="font-semibold truncate min-w-0">{ev.title}</p>
@@ -163,11 +166,16 @@ function ManageRow({
         <p className="text-sm text-muted truncate">
           {CATEGORY_LABEL[ev.category]} · {eventTime(ev.start_date)}
           {ev.venue ? ` · ${ev.venue}` : ''}
+          <span className="sm:hidden">
+            {' · '}
+            <span className="whitespace-nowrap">{cap} joined</span>
+          </span>
         </p>
       </div>
 
-      {/* Registrations */}
-      <div className="relative z-10 flex items-center gap-1.5 text-sm text-ink-soft shrink-0 pointer-events-none">
+      {/* Registrations — desktop only; on mobile it's folded into the meta line
+          above so it never squeezes the title. */}
+      <div className="relative z-10 hidden sm:flex items-center gap-1.5 text-sm text-ink-soft shrink-0 pointer-events-none">
         <Icon name="team" className="w-4 h-4 text-muted" />
         {cap}
       </div>

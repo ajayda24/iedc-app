@@ -130,6 +130,16 @@ html.lenis body {
   -webkit-backdrop-filter: blur(18px) saturate(150%);
 }
 
+/* Hide the scrollbar while keeping scroll (used by the events filter rows on
+   mobile, where the chips scroll horizontally). */
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* old Edge */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome / Safari */
+}
+
 /* ---- Overlay / popover transitions ---- */
 /* Popover (dropdown menus, notification sheet): fade + slight rise/scale. */
 .anim-pop {

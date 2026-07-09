@@ -107,6 +107,7 @@ export function StatCard({
   hint,
   tint = 'indigo',
   art,
+  compact = false,
 }: {
   icon: string
   label: string
@@ -114,8 +115,32 @@ export function StatCard({
   hint?: string
   tint?: keyof typeof TINTS
   art?: StatArtKey
+  // Short, tight tile with an inline icon+text layout — no min-height. For
+  // pages (e.g. Certificates) where the tall art-friendly tile wastes space.
+  compact?: boolean
 }) {
   const Art = art ? STAT_ART[art] : null
+
+  if (compact) {
+    return (
+      <div className="glass relative overflow-hidden rounded-2xl p-3 flex items-center gap-3">
+        <span
+          className={`grid place-items-center w-9 h-9 rounded-xl shrink-0 ${TINTS[tint]}`}
+        >
+          <Icon name={icon} className="w-4 h-4" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-[0.7rem] text-muted font-medium truncate">
+            {label}
+          </p>
+          <p className="font-display font-bold text-lg leading-tight">
+            {value}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="glass relative overflow-hidden rounded-3xl p-4 sm:p-5 flex flex-col gap-2 min-h-30 sm:min-h-34">
       {Art && art && (
