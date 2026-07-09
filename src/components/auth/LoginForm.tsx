@@ -1,12 +1,20 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Icon from '@/components/landing/Icon'
 import { loginWithStudentId } from '@/lib/auth/actions'
 
+// Only follow same-origin relative paths ("/dashboard/…"), never absolute URLs
+// or protocol-relative ("//evil.com") ones, to avoid an open-redirect.
+function safeRedirect(target: string | null): string {
+  if (target && target.startsWith('/') && !target.startsWith('//')) return target
+  return '/dashboard'
+}
+
 export default function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [pending, startTransition] = useTransition()
 
   const [studentId, setStudentId] = useState('')
@@ -27,7 +35,7 @@ export default function LoginForm() {
         setError(res.error)
         return
       }
-      router.push('/dashboard')
+      router.push(safeRedirect(searchParams.get('redirect')))
       router.refresh()
     })
   }

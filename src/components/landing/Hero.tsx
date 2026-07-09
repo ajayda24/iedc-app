@@ -1,37 +1,6 @@
 import Link from "next/link";
 import Icon from "./Icon";
 
-function StatChip({
-  icon,
-  value,
-  label,
-  tint,
-  className = "",
-}: {
-  icon: string;
-  value: string;
-  label: string;
-  tint: string;
-  className?: string;
-}) {
-  return (
-    <div
-      className={`glass floaty flex items-center gap-3 rounded-2xl px-4 py-3 ${className}`}
-    >
-      <span
-        className="grid h-10 w-10 place-items-center rounded-xl"
-        style={{ background: `color-mix(in srgb, ${tint} 18%, white)`, color: tint }}
-      >
-        <Icon name={icon} className="h-5 w-5" />
-      </span>
-      <div className="leading-tight">
-        <div className="text-lg font-bold text-ink">{value}</div>
-        <div className="text-xs text-muted">{label}</div>
-      </div>
-    </div>
-  );
-}
-
 export default function Hero() {
   return (
     <section

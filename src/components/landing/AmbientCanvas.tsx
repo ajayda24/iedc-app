@@ -18,14 +18,27 @@ function Orbs() {
   const group = useRef<THREE.Group>(null);
 
   const orbs = useMemo<OrbData[]>(() => {
-    const rng = (a: number, b: number) => a + Math.random() * (b - a);
-    return Array.from({ length: 14 }, () => ({
-      position: [rng(-7, 7), rng(-5, 5), rng(-6, -1)],
-      scale: rng(0.5, 1.7),
-      color: PALETTE[Math.floor(Math.random() * PALETTE.length)],
-      speed: rng(0.15, 0.5),
-      phase: rng(0, Math.PI * 2),
-    }));
+    // Deterministic PRNG (mulberry32) so the layout is identical on server and
+    // client — avoids hydration mismatch and keeps this pure across re-renders.
+    // Pure functional style: the seed threads through explicitly, no mutation.
+    const hash = (s: number) => {
+      let t = (s + 0x6d2b79f5) | 0;
+      t = Math.imul(t ^ (t >>> 15), 1 | t);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const rng = (i: number, a: number, b: number) => a + hash(i) * (b - a);
+    // Each orb draws from a distinct block of seed indices so values don't repeat.
+    return Array.from({ length: 14 }, (_unused, n) => {
+      const s = n * 7;
+      return {
+        position: [rng(s, -7, 7), rng(s + 1, -5, 5), rng(s + 2, -6, -1)],
+        scale: rng(s + 3, 0.5, 1.7),
+        color: PALETTE[Math.floor(hash(s + 4) * PALETTE.length)],
+        speed: rng(s + 5, 0.15, 0.5),
+        phase: rng(s + 6, 0, Math.PI * 2),
+      } as OrbData;
+    });
   }, []);
 
   useFrame((state) => {

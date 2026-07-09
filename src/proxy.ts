@@ -8,8 +8,9 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 // Routes that require a logged-in user. Everything else (landing page, the
-// /login and /signup flow, static assets) stays public.
-const PROTECTED_PREFIXES = ['/dashboard', '/profile', '/events', '/admin']
+// /login and /signup flow, static assets) stays public. The whole app lives
+// under /dashboard/*; there are no top-level /profile, /events or /admin routes.
+const PROTECTED_PREFIXES = ['/dashboard']
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request })

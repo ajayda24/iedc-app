@@ -13,12 +13,23 @@ export const metadata = {
   description: 'Log in to your IEDC Hub account.',
 }
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirect?: string }>
+}) {
   // A valid session means the user is logged in — send them to the app. Use the
   // session (getUser), not getProfile: a failing profile query must not strand a
-  // logged-in user on the login form.
+  // logged-in user on the login form. Honor ?redirect= (same-origin only).
   const user = await getUser()
-  if (user) redirect('/dashboard')
+  if (user) {
+    const { redirect: target } = await searchParams
+    const dest =
+      target && target.startsWith('/') && !target.startsWith('//')
+        ? target
+        : '/dashboard'
+    redirect(dest)
+  }
 
   return (
     <main className="relative min-h-dvh overflow-hidden">
