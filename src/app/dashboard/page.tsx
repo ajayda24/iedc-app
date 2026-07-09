@@ -31,11 +31,22 @@ export default async function DashboardPage() {
         {/* Greeting */}
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="font-display font-bold text-2xl sm:text-3xl">
+            <h1 className="font-display font-bold text-xl sm:text-2xl">
               Welcome back, {firstName}! <span aria-hidden>👋</span>
             </h1>
-            <p className="text-ink-soft mt-1">
-              Let&apos;s build, innovate and make an impact.
+            <p className="text-ink-soft mt-1 font-medium">
+              Let&apos;s{' '}
+              <span className="text-grad-rainbow">
+               build, 
+              </span>
+              {' '}
+              <span className="text-grad-rainbow">
+               innovate 
+              </span>
+              {' '}and make an{' '}
+              <span className="text-grad-rainbow">
+               impact.
+              </span>
             </p>
           </div>
         </div>
@@ -46,19 +57,22 @@ export default async function DashboardPage() {
             icon="calendar"
             label="Events Joined"
             value={profile.total_events}
-            tint="indigo"
+            tint="lavender"
+            art="area"
           />
           <StatCard
             icon="trophy"
             label="Points Earned"
             value={profile.total_points.toLocaleString()}
             tint="peach"
+            art="points"
           />
           <StatCard
             icon="certificate"
             label="Certificates"
             value={profile.total_certificates}
             tint="mint"
+            art="certificate"
           />
           <StatCard
             icon="chart"
@@ -66,6 +80,7 @@ export default async function DashboardPage() {
             value={rank ? `#${rank.me.rank}` : '—'}
             hint={rank ? `in ${profile.department}` : undefined}
             tint="blue"
+            art="podium"
           />
         </div>
 
@@ -75,6 +90,7 @@ export default async function DashboardPage() {
             title="Upcoming Events"
             icon="calendar"
             href="/dashboard/events"
+            tint="indigo"
           />
           {openEvents.length === 0 ? (
             <EmptyState
@@ -125,6 +141,7 @@ export default async function DashboardPage() {
             title="Leaderboard"
             icon="trophy"
             href="/dashboard/leaderboard"
+            tint="peach"
           />
           {top3.length === 0 ? (
             <EmptyState icon="trophy" title="No rankings yet" />
@@ -180,7 +197,7 @@ export default async function DashboardPage() {
 
         {/* Notifications */}
         <Card>
-          <SectionHeader title="Notifications" icon="bell" />
+          <SectionHeader title="Notifications" icon="bell" tint="mint" />
           {notifications.length === 0 ? (
             <EmptyState icon="bell" title="You're all caught up" />
           ) : (

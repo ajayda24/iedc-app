@@ -18,9 +18,17 @@
   --asphalt-1: #2b3242;
   --asphalt-2: #1d2330;
 
-  --glass-bg: rgba(255, 255, 255, 0.65);
-  --glass-brd: rgba(255, 255, 255, 0.7);
-  --card-shadow: 0 20px 60px -25px rgba(40, 52, 92, 0.35);
+  /* Redesigned card look: near-solid white surface, hairline border, and a
+     soft low-spread shadow (much lighter than the old heavy drop shadow).
+     To revert, restore the three commented values below. */
+  --glass-bg: rgba(255, 255, 255, 0.92);
+  --glass-brd: rgba(40, 52, 92, 0.06);
+  --card-shadow: 0 1px 2px rgba(40, 52, 92, 0.04),
+    0 6px 20px -8px rgba(40, 52, 92, 0.12);
+  /* Old values:
+     --glass-bg: rgba(255, 255, 255, 0.65);
+     --glass-brd: rgba(255, 255, 255, 0.7);
+     --card-shadow: 0 20px 60px -25px rgba(40, 52, 92, 0.35); */
 
   --radius: 22px;
 }
@@ -78,8 +86,10 @@ html.lenis body {
 .glass {
   background: var(--glass-bg);
   border: 1px solid var(--glass-brd);
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  /* Lighter blur — the surface is near-solid now, so a heavy backdrop-filter
+     just costs GPU without showing. Keeps a faint frost for overlaps. */
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
   box-shadow: var(--card-shadow);
 }
 
@@ -161,6 +171,22 @@ html.lenis body {
 
 .text-grad {
   background: linear-gradient(100deg, var(--indigo), var(--blue) 40%, var(--sky) 75%, var(--mint));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Warm full-spectrum heading gradient (blue → violet → pink → orange), used
+   for the dashboard greeting to match the reference. */
+.text-grad-rainbow {
+  background: linear-gradient(
+    100deg,
+    var(--blue),
+    var(--blue) 28%,
+    var(--lavender) 48%,
+    var(--indigo) 78%
+    /* var(--peach) */
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
