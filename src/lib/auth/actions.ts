@@ -27,6 +27,32 @@ function maskEmail(email: string): string {
   return `${head}${'*'.repeat(Math.max(1, local.length - 2))}@${domain}`
 }
 
+// Turn a Supabase auth error into a message safe to show a user. Providers
+// sometimes hand back an empty/opaque body (e.g. an email-delivery 500 surfaces
+// as message "{}"), which must never reach the UI as literal "{}". Map the known
+// transient cases to plain guidance and fall back to a generic line otherwise.
+function friendlyAuthError(err: {
+  message?: string
+  status?: number
+  name?: string
+  code?: string
+}): string {
+  const msg = (err?.message ?? '').trim()
+  const opaque = !msg || msg === '{}' || msg === '[object Object]'
+
+  // Email send failed (rate limit or delivery problem) — the common one.
+  if (
+    err?.name === 'AuthRetryableFetchError' ||
+    err?.status === 500 ||
+    err?.code === 'over_email_send_rate_limit' ||
+    /rate limit|sending email|smtp/i.test(msg)
+  ) {
+    return "We couldn't send the verification email right now. Please wait a minute and try again."
+  }
+
+  return opaque ? 'Something went wrong. Please try again.' : msg
+}
+
 // ---------------------------------------------------------------------------
 // STEP 1 — verify studentId against the roster, send OTP to the on-file email.
 // ---------------------------------------------------------------------------
@@ -70,7 +96,7 @@ export async function requestSignupOtp(
     email: student.email,
     options: { shouldCreateUser: true },
   })
-  if (otpErr) return { ok: false, error: otpErr.message }
+  if (otpErr) return { ok: false, error: friendlyAuthError(otpErr) }
 
   // Return the real email (the next step needs it) plus a masked hint to show.
   // The email came from the roster, not the client — it can't be redirected.
@@ -93,7 +119,7 @@ export async function verifySignupOtp(
     token: token.trim(),
     type: 'email',
   })
-  if (error) return { ok: false, error: error.message }
+  if (error) return { ok: false, error: friendlyAuthError(error) }
   return { ok: true, data: undefined }
 }
 
