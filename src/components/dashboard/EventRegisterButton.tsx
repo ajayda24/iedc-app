@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { mutate } from 'swr'
 import {
   registerAction,
   cancelAction,
@@ -11,8 +12,9 @@ import type { RegState } from '@/lib/events/reg-state'
 //  - "Register" (open, not yet registered)
 //  - "Registered · Cancel" (user holds an active registration)
 //  - a disabled reason ("Full", "Closed", "Completed", "Cancelled")
-// Server Action results refresh the list via revalidatePath, so we only need
-// local state for the pending spinner and any inline error.
+// The server action also revalidatePath()s for any server-rendered views (e.g.
+// the event detail page); the SWR revalidation below refreshes the client
+// events/dashboard lists so the button state + spot counts update immediately.
 export type { RegState }
 
 export default function EventRegisterButton({
@@ -29,7 +31,13 @@ export default function EventRegisterButton({
     setError(null)
     startTransition(async () => {
       const res = await action()
-      if (!res.ok) setError(res.error ?? 'Something went wrong.')
+      if (!res.ok) {
+        setError(res.error ?? 'Something went wrong.')
+        return
+      }
+      // Refresh the SWR-cached client lists that show registration state.
+      mutate('/api/events')
+      mutate('/api/dashboard')
     })
   }
 
