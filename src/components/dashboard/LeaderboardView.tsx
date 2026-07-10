@@ -230,13 +230,15 @@ function ListSkeleton() {
     <ul className="flex flex-col gap-2">
       {Array.from({ length: 6 }).map((_, i) => (
         <li key={i} className="flex items-center gap-3 py-3 px-2">
-          <span className="w-8 h-8 rounded-full bg-black/5 animate-pulse" />
-          <span className="w-9 h-9 rounded-full bg-black/5 animate-pulse" />
-          <div className="flex-1 space-y-1.5">
-            <div className="h-3.5 w-40 rounded bg-black/5 animate-pulse" />
-            <div className="h-3 w-28 rounded bg-black/5 animate-pulse" />
+          <span className="w-8 h-8 rounded-full bg-black/5 animate-pulse shrink-0" />
+          <span className="w-9 h-9 rounded-full bg-black/5 animate-pulse shrink-0" />
+          {/* min-w-0 lets this flex child shrink; the bars use % widths (not a
+              fixed w-40) so the row never overflows the viewport on mobile. */}
+          <div className="flex-1 min-w-0 space-y-1.5">
+            <div className="h-3.5 w-3/5 max-w-40 rounded bg-black/5 animate-pulse" />
+            <div className="h-3 w-2/5 max-w-28 rounded bg-black/5 animate-pulse" />
           </div>
-          <div className="h-4 w-12 rounded bg-black/5 animate-pulse" />
+          <div className="h-4 w-12 rounded bg-black/5 animate-pulse shrink-0" />
         </li>
       ))}
     </ul>
@@ -351,10 +353,14 @@ function Podium({ rows }: { rows: MonthlyLeaderboardRow[] }) {
     .filter((r): r is MonthlyLeaderboardRow => Boolean(r))
     .filter((r) => r.month_points > 0)
   return (
-    <div className="max-w-sm w-full mx-auto flex gap-2 sm:gap-4 items-center justify-center pt-2">
-      {order.map((row) => (
-        <PodiumCard key={row.id} row={row} />
-      ))}
+    // overflow-hidden guards against the fixed-width avatars overflowing on very
+    // narrow phones (which would push the fixed bottom nav).
+    <div className="w-full overflow-hidden pt-2">
+      <div className="max-w-sm w-full mx-auto flex gap-2 sm:gap-4 items-center justify-center">
+        {order.map((row) => (
+          <PodiumCard key={row.id} row={row} />
+        ))}
+      </div>
     </div>
   )
 }

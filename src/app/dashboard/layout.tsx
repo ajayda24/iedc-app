@@ -1,3 +1,4 @@
+import { ViewTransition } from 'react'
 import { requireProfile } from '@/lib/auth/queries'
 import { Sidebar, BottomNav } from '@/components/dashboard/DashboardNav'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
@@ -21,9 +22,14 @@ export default async function DashboardLayout({
         <div className="flex-1 min-w-0 flex flex-col">
           <DashboardHeader profile={profile} />
 
-          {/* pb-24 leaves room for the mobile bottom nav */}
+          {/* pb-24 leaves room for the mobile bottom nav. The page content
+              crossfades on navigation via <ViewTransition> (see the
+              `.page-fade` rules in globals.css) so switching tabs no longer
+              flashes. The shell (header/sidebar/bottom-nav) stays put. */}
           <main className="flex-1 px-4 sm:px-6 py-5 pb-24 lg:pb-8">
-            {children}
+            <ViewTransition name="page-content" enter="page-fade" exit="page-fade">
+              {children}
+            </ViewTransition>
           </main>
         </div>
 

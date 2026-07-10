@@ -16,7 +16,9 @@ export default async function DashboardHeader({
   const notifications = await listMyNotifications(8)
 
   return (
-    <header className="relative top-0 z-30  px-4 sm:px-6 py-3 flex items-center gap-3">
+    <header
+      className="dash-header relative top-0 z-30  px-4 sm:px-6 py-3 flex items-center gap-3"
+    >
       {/* Mobile brand (sidebar hidden) */}
       <Link href="/dashboard" className="flex items-center gap-2 lg:hidden">
         <span className="grid place-items-center w-8 h-8 rounded-lg btn-primary">

@@ -81,58 +81,77 @@ export function BottomNav({ role }: { role: UserRole }) {
   // Highlight "More" when the active route lives inside the extra items.
   const moreActive = moreItems.some((i) => isActive(pathname, i.href))
 
+  // Total slots in the bar (primary items + the optional "More" slot), and the
+  // index of the active one — drives the sliding indicator's position.
+  const hasMore = moreItems.length > 0
+  const slotCount = items.length + (hasMore ? 1 : 0)
+  const activeIndex = moreActive
+    ? items.length // the "More" slot
+    : items.findIndex((i) => isActive(pathname, i.href))
+
   return (
     <>
       <nav
-        className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-black/5 px-2 pb-[env(safe-area-inset-bottom)]"
+        // `view-transition-name` anchors the bar so page transitions don't
+        // snapshot/animate it (that caused the overlay flash). The active
+        // indicator is a separate sliding element (below), NOT a view
+        // transition, so it moves in sync with the route via a CSS transform.
+        className="dash-bottom-nav lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-black/5 px-2 pb-[env(safe-area-inset-bottom)]"
         aria-label="Primary"
       >
-        <ul className="flex items-stretch justify-around">
-          {items.map((item) => {
-            const active = isActive(pathname, item.href)
-            return (
-              <li key={item.href} className="flex-1">
-                <Link
-                  href={item.href}
-                  className={`flex flex-col items-center gap-1 py-1.5 text-[0.65rem] font-medium transition-colors ${
-                    active ? 'text-indigo' : 'text-muted'
-                  }`}
-                >
-                  <span
-                    className={`grid place-items-center w-9 h-9 rounded-xl transition-colors ${
-                      active ? 'bg-indigo/12' : ''
+        <div className="relative">
+          {/* Sliding active indicator — one element that glides between slots. */}
+          {activeIndex >= 0 && (
+            <span
+              aria-hidden
+              className="pointer-events-none absolute top-1.5 grid place-items-center w-9 h-9 rounded-xl bg-indigo/12 transition-[left] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+              style={{
+                // Center within the active slot: each slot is (100/slotCount)%
+                // wide; offset by half a slot, then back off half the pill (18px).
+                left: `calc(${(activeIndex + 0.5) * (100 / slotCount)}% - 18px)`,
+              }}
+            />
+          )}
+
+          <ul className="flex items-stretch justify-around">
+            {items.map((item) => {
+              const active = isActive(pathname, item.href)
+              return (
+                <li key={item.href} className="flex-1">
+                  <Link
+                    href={item.href}
+                    className={`relative flex flex-col items-center gap-1 py-1.5 text-[0.65rem] font-medium transition-colors ${
+                      active ? 'text-indigo' : 'text-muted'
                     }`}
                   >
-                    <Icon name={item.icon} className="w-5 h-5" />
-                  </span>
-                  {item.label}
-                </Link>
-              </li>
-            )
-          })}
+                    <span className="grid place-items-center w-9 h-9">
+                      <Icon name={item.icon} className="w-5 h-5" />
+                    </span>
+                    {item.label}
+                  </Link>
+                </li>
+              )
+            })}
 
-          {moreItems.length > 0 && (
-            <li className="flex-1">
-              <button
-                onClick={() => setMoreOpen(true)}
-                aria-haspopup="dialog"
-                aria-expanded={moreOpen}
-                className={`w-full flex flex-col items-center gap-1 py-1.5 text-[0.65rem] font-medium transition-colors ${
-                  moreActive ? 'text-indigo' : 'text-muted'
-                }`}
-              >
-                <span
-                  className={`grid place-items-center w-9 h-9 rounded-xl transition-colors ${
-                    moreActive ? 'bg-indigo/12' : ''
+            {hasMore && (
+              <li className="flex-1">
+                <button
+                  onClick={() => setMoreOpen(true)}
+                  aria-haspopup="dialog"
+                  aria-expanded={moreOpen}
+                  className={`relative w-full flex flex-col items-center gap-1 py-1.5 text-[0.65rem] font-medium transition-colors ${
+                    moreActive ? 'text-indigo' : 'text-muted'
                   }`}
                 >
-                  <Icon name="grid" className="w-5 h-5" />
-                </span>
-                More
-              </button>
-            </li>
-          )}
-        </ul>
+                  <span className="grid place-items-center w-9 h-9">
+                    <Icon name="grid" className="w-5 h-5" />
+                  </span>
+                  More
+                </button>
+              </li>
+            )}
+          </ul>
+        </div>
       </nav>
 
       <MoreSheet

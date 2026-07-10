@@ -82,6 +82,91 @@ html.lenis body {
   background: rgba(122, 108, 255, 0.22);
 }
 
+/* ============ View transitions (page navigation) ============ */
+/* Only the named `page-content` group should animate. The root snapshot (the
+   static shell background behind everything) must NOT cross-fade, or it flashes
+   over the fixed nav/header during the transition. */
+::view-transition-group(root) {
+  animation: none;
+}
+::view-transition-old(root) {
+  animation: none;
+}
+::view-transition-new(root) {
+  animation: none;
+}
+
+/* The dashboard <main> content crossfades when switching pages, so tab
+   navigation no longer flashes. Applied via <ViewTransition
+   enter/exit="page-fade"> in the dashboard layout. Unsupported browsers simply
+   skip the animation and swap instantly. */
+/* Keep the page-content snapshots BELOW the anchored nav (z-index 50) so the
+   fading page never paints over the bottom nav / header. A PURE opacity
+   crossfade (no translate) — a transform would let the snapshot bleed outside
+   its box and over the fixed nav, which caused the overlay flash. */
+::view-transition-group(page-content) {
+  z-index: 1;
+}
+::view-transition-old(page-content) {
+  animation: 140ms ease-in both page-fade-out;
+}
+::view-transition-new(page-content) {
+  animation: 200ms ease-out 100ms both page-fade-in;
+}
+@keyframes page-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Anchor the bottom nav bar: it is a persistent shell element, so it must not
+   be snapshotted/animated during page transitions (that caused an overlay /
+   flash on mobile). Its active indicator slides via a plain CSS transform (see
+   DashboardNav.tsx), independent of view transitions. */
+.dash-bottom-nav {
+  view-transition-name: bottom-nav;
+}
+::view-transition-group(bottom-nav) {
+  animation: none;
+  z-index: 50;
+}
+::view-transition-old(bottom-nav) {
+  display: none;
+}
+::view-transition-new(bottom-nav) {
+  animation: none;
+}
+
+/* Anchor the top header too, so it stays fixed (not part of the fading page). */
+.dash-header {
+  view-transition-name: dash-header;
+}
+::view-transition-group(dash-header) {
+  animation: none;
+  z-index: 50;
+}
+::view-transition-old(dash-header) {
+  display: none;
+}
+::view-transition-new(dash-header) {
+  animation: none;
+}
+
+/* Respect users who prefer less motion — swap instantly, no movement. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+
 /* ============ Reusable classes ============ */
 .glass {
   background: var(--glass-bg);
