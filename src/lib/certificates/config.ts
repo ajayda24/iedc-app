@@ -10,7 +10,7 @@ export const CERT_ORG = {
   name: 'IEDC Hub',
   tagline: 'Innovation & Entrepreneurship',
   // e.g. '/certificates/logo.svg' — null renders the lettermark fallback.
-  logoUrl: null as string | null,
+  logoUrl: '/logo-transparent.png' as string | null,
 }
 
 // A signature block printed at the bottom. Add/remove entries freely — the

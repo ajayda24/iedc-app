@@ -68,10 +68,13 @@ export default function Hero() {
               <Icon name="arrow" className="h-4 w-4" />
             </button>
             </Link>
-            <button className="btn-ghost inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold">
+            <a
+              href="#features"
+              className="btn-ghost inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold"
+            >
               <Icon name="play" className="h-4 w-4 text-indigo" />
               Learn More
-            </button>
+            </a>
           </div>
         </div>
       </div>

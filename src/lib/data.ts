@@ -122,9 +122,9 @@ export type TeamMember = {
 // If an image is missing the card gracefully shows the member's initials.
 export const TEAM: TeamMember[] = [
   {
-    name: "Chithra Valassery",
+    name: "Chithra V",
     position: "IEDC Tutor Coordinator",
-    profile_image: "/team/chithra.jpg",
+    profile_image: "/team/nodal_officer.jpg",
     tint: "var(--indigo)",
     lead: true,
   },

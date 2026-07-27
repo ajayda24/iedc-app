@@ -15,6 +15,7 @@ import {
 } from './events'
 import { markAttendance } from './registrations'
 import { createClient } from '@/lib/supabase/server'
+import { appLocalToISO } from '@/lib/time'
 import type {
   EventCategory,
   EventStatus,
@@ -55,9 +56,11 @@ function parseForm(fd: FormData): EventInput | string {
     const v = (fd.get(k) as string)?.trim()
     return v ? v : null
   }
+  // Picker fields are wall-clock strings meaning APP_TIMEZONE (IST); convert
+  // deterministically so storage doesn't depend on the server's timezone.
   const dt = (k: string) => {
     const v = fd.get(k) as string
-    return v ? new Date(v).toISOString() : null
+    return v ? appLocalToISO(v) : null
   }
   const int = (k: string) => {
     const v = (fd.get(k) as string)?.trim()
@@ -67,7 +70,7 @@ function parseForm(fd: FormData): EventInput | string {
   }
 
   const end = dt('end_date')
-  const start = new Date(startDate).toISOString()
+  const start = appLocalToISO(startDate)
   if (end && end < start) return 'End date must be after the start date.'
 
   return {

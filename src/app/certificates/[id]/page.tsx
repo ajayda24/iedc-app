@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import Link from 'next/link'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { getPublicCertificate } from '@/lib/queries'
 import { getUser } from '@/lib/auth/queries'
@@ -28,10 +29,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params
   const cert = await getPublicCertificate(id)
-  if (!cert) return { title: 'Certificate not found — IEDC Hub' }
+  if (!cert) return { title: 'Certificate not found' }
 
   const what = cert.event_title ?? CERT_LABEL[cert.certificate_type]
-  const title = `${cert.recipient_name} — ${what} · IEDC Hub`
+  const title = `${cert.recipient_name} — ${what}`
   const description = `${CERT_LABEL[cert.certificate_type]} certificate issued to ${cert.recipient_name}${
     cert.event_title ? ` for ${cert.event_title}` : ''
   }. Verify ${cert.serial}.`
@@ -75,12 +76,18 @@ export default async function CertificatePage({
       <div className="mx-auto max-w-4xl flex flex-col gap-6">
         {/* header strip */}
         <div className="flex items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="flex items-center gap-2 font-display font-bold text-lg"
-          >
-            <Icon name="logo" className="w-7 h-7 text-indigo" />
-            IEDC Hub
+          <Link href="/" className="flex items-end gap-2.5">
+            <Image
+              src="/logo-transparent.png"
+              alt=""
+              width={371}
+              height={371}
+              className="h-7 w-auto "
+              priority
+            />
+            <span className="font-display font-bold text-lg tracking-tight">
+              HUB
+            </span>
           </Link>
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-2 rounded-full bg-mint/15 px-3 py-1 text-sm font-semibold text-mint">

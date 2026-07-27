@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import Icon from '@/components/landing/Icon'
+import Image from 'next/image'
 import UserMenu from './UserMenu'
 import NotificationsMenu from './NotificationsMenu'
 import { SearchBar, SearchIconButton } from './SearchTriggers'
@@ -20,11 +20,18 @@ export default async function DashboardHeader({
       className="dash-header relative top-0 z-30  px-4 sm:px-6 py-3 flex items-center gap-3"
     >
       {/* Mobile brand (sidebar hidden) */}
-      <Link href="/dashboard" className="flex items-center gap-2 lg:hidden">
-        <span className="grid place-items-center w-8 h-8 rounded-lg btn-primary">
-          <Icon name="logo" className="w-4 h-4" />
+      <Link href="/dashboard" className="flex items-end gap-2.5 lg:hidden">
+        <Image
+          src="/logo-transparent.png"
+          alt=""
+          width={371}
+          height={371}
+          className="h-7 w-auto "
+          priority
+        />
+        <span className="font-display font-bold text-lg tracking-tight">
+          HUB
         </span>
-        <span className="font-display font-bold tracking-tight">IEDC Hub</span>
       </Link>
 
       {/* Desktop search — prominent command-style bar */}

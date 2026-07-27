@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import Icon from '@/components/landing/Icon'
@@ -27,12 +28,17 @@ export function Sidebar({ role }: { role: UserRole }) {
 
   return (
     <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:shrink-0 lg:h-screen lg:sticky lg:top-0 px-4 py-6 gap-2">
-      <Link href="/dashboard" className="flex items-center gap-2.5 px-3 mb-6">
-        <span className="grid place-items-center w-9 h-9 rounded-xl btn-primary">
-          <Icon name="logo" className="w-5 h-5" />
-        </span>
+      <Link href="/dashboard" className="flex items-end gap-2.5 px-3 mb-6">
+        <Image
+          src="/logo-transparent.png"
+          alt=""
+          width={371}
+          height={371}
+          className="h-7 w-auto "
+          priority
+        />
         <span className="font-display font-bold text-lg tracking-tight">
-          IEDC Hub
+          HUB
         </span>
       </Link>
 

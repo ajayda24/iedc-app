@@ -9,7 +9,7 @@ import LoginForm from '@/components/auth/LoginForm'
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Log in — IEDC Hub',
+  title: 'Log in',
   description: 'Log in to your IEDC Hub account.',
 }
 

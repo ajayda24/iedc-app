@@ -9,7 +9,7 @@ import SignupFlow from '@/components/auth/SignupFlow'
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Get started — IEDC Hub',
+  title: 'Get started',
   description: 'Create your IEDC Hub account.',
 }
 

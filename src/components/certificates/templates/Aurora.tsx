@@ -149,8 +149,8 @@ export default function Aurora({ data }: { data: CertificateData }) {
                 <Image
                   src={data.org.logoUrl}
                   alt=""
-                  width={80}
-                  height={80}
+                  width={50}
+                  height={50}
                   className="aurora-crest-img"
                 />
               ) : (
@@ -218,13 +218,13 @@ export default function Aurora({ data }: { data: CertificateData }) {
           )}
         </div>
 
-        <div className="aurora-verify">
+        {/* <div className="aurora-verify">
           Verify at {data.verifyUrl.replace(/^https?:\/\//, '')}
           <span className="aurora-verify-sep"> · </span>
           Certificate No. {data.serial}
           <span className="aurora-verify-sep"> · </span>
           Issued {data.issuedDate}
-        </div>
+        </div> */}
       </div>
     </div>
   )

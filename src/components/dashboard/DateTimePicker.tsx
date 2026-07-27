@@ -3,11 +3,18 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import Icon from '@/components/landing/Icon'
 import { useMountTransition } from './use-mount-transition'
+import { APP_TIMEZONE } from '@/lib/time'
 
 // Custom date + time chooser matching the design system. Time steps in 15-min
 // increments. Submits a `YYYY-MM-DDTHH:mm` string via a hidden input — the same
 // format a native datetime-local emits, so manage-actions parseForm handles it
 // unchanged. `defaultValue` accepts an ISO timestamp.
+//
+// All wall-clock reasoning here is in APP_TIMEZONE (IST): a UTC ISO default is
+// converted to its IST parts, and the string we submit is the IST wall-clock —
+// symmetric with how manage-actions and format.ts read/write times. The internal
+// `Date` is a carrier whose *UTC* fields hold the IST wall-clock, so UTC getters
+// (getUTCHours, …) yield the parts the user sees, independent of the browser zone.
 
 const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 const MONTHS = [
@@ -17,19 +24,34 @@ const MONTHS = [
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
-// Parse an ISO / datetime-local string into parts, or null.
+// Parse an ISO / datetime-local string into an IST wall-clock carrier, or null.
+// The returned Date's UTC fields hold the IST wall-clock parts, so downstream
+// UTC getters read the time the user should see.
 function parse(v: string | null | undefined) {
   if (!v) return null
   const d = new Date(v)
   if (Number.isNaN(d.getTime())) return null
-  return d
+  // Get the IST wall-clock parts for this instant, then rebuild as a UTC carrier.
+  const p = new Intl.DateTimeFormat('en-CA', {
+    timeZone: APP_TIMEZONE,
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).formatToParts(d)
+  const g = (t: string) => Number(p.find((x) => x.type === t)?.value)
+  const hour = g('hour') === 24 ? 0 : g('hour')
+  return new Date(Date.UTC(g('year'), g('month') - 1, g('day'), hour, g('minute')))
 }
 
-// Serialize to the datetime-local wire format (local time, no zone).
+// Serialize the IST wall-clock carrier to the datetime-local wire format
+// (no zone). Reads UTC fields because that's where the wall-clock lives.
 function serialize(d: Date): string {
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
-    d.getHours()
-  )}:${pad(d.getMinutes())}`
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(
+    d.getUTCDate()
+  )}T${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`
 }
 
 const HOURS = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
@@ -61,8 +83,8 @@ export default function DateTimePicker({
   const [selected, setSelected] = useState<Date | null>(initial)
   // Month currently shown in the calendar (day is irrelevant here).
   const [view, setView] = useState(() => {
-    const base = initial ?? new Date()
-    return { year: base.getFullYear(), month: base.getMonth() }
+    const base = initial ?? parse(new Date().toISOString())!
+    return { year: base.getUTCFullYear(), month: base.getUTCMonth() }
   })
   const [open, setOpen] = useState(false)
   const { mounted, show } = useMountTransition(open)
@@ -93,19 +115,27 @@ export default function DateTimePicker({
 
   // Current time parts (defaulting to 9:00 AM before anything is picked), used
   // to highlight the active hour/minute/meridiem buttons.
-  const parts = to12h(selected ? selected.getHours() : 9)
+  const parts = to12h(selected ? selected.getUTCHours() : 9)
   const curH12 = parts.h12
   const curMeridiem = parts.meridiem
-  const curMin = selected ? selected.getMinutes() : 0
+  const curMin = selected ? selected.getUTCMinutes() : 0
 
   // Whether a full selection exists (day + time both chosen this session).
   const complete = () => daySet.current && timeSet.current
 
   function pickDay(day: number) {
-    const base = selected ?? new Date(view.year, view.month, day, 9, 0)
+    const base = selected ?? new Date(Date.UTC(view.year, view.month, day, 9, 0))
     daySet.current = true
     setSelected(
-      new Date(view.year, view.month, day, base.getHours(), base.getMinutes())
+      new Date(
+        Date.UTC(
+          view.year,
+          view.month,
+          day,
+          base.getUTCHours(),
+          base.getUTCMinutes()
+        )
+      )
     )
     // Day is a single decisive tap — if the time was already set, we're done.
     if (complete()) setOpen(false)
@@ -115,41 +145,46 @@ export default function DateTimePicker({
   // multi-tap (hour + minute + AM/PM), so this never auto-closes; the user
   // confirms with "Done" (or by picking a day afterwards).
   function setTimeParts(h12: number, min: number, meridiem: 'AM' | 'PM') {
-    const base = selected ?? new Date(view.year, view.month, 1)
+    const base = selected ?? new Date(Date.UTC(view.year, view.month, 1))
     timeSet.current = true
     setSelected(
       new Date(
-        base.getFullYear(),
-        base.getMonth(),
-        base.getDate(),
-        to24h(h12, meridiem),
-        min
+        Date.UTC(
+          base.getUTCFullYear(),
+          base.getUTCMonth(),
+          base.getUTCDate(),
+          to24h(h12, meridiem),
+          min
+        )
       )
     )
   }
 
   function shiftMonth(delta: number) {
     setView((v) => {
-      const d = new Date(v.year, v.month + delta, 1)
-      return { year: d.getFullYear(), month: d.getMonth() }
+      const d = new Date(Date.UTC(v.year, v.month + delta, 1))
+      return { year: d.getUTCFullYear(), month: d.getUTCMonth() }
     })
   }
 
   const label = selected
-    ? selected.toLocaleString('en-US', {
+    ? // Read the carrier's UTC fields (the IST wall-clock) as UTC so the label
+      // matches what was picked, independent of the browser's timezone.
+      selected.toLocaleString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
         hour: 'numeric',
         minute: '2-digit',
+        timeZone: 'UTC',
       })
     : placeholder
 
   const isSameDay = (d: number) =>
     selected != null &&
-    selected.getFullYear() === view.year &&
-    selected.getMonth() === view.month &&
-    selected.getDate() === d
+    selected.getUTCFullYear() === view.year &&
+    selected.getUTCMonth() === view.month &&
+    selected.getUTCDate() === d
 
   return (
     <div className="relative" ref={ref}>
