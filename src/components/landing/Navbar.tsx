@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Icon from "./Icon";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Navbar() {
@@ -20,15 +20,20 @@ export default function Navbar() {
         className={`flex w-full max-w-6xl items-center justify-between rounded-2xl px-4 py-2.5 transition-all duration-300 sm:px-5 ${scrolled ? "bg-transparent " : "bg-transparent " //glass
           }`}
       >
-        <a href="#top" className="flex items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-indigo to-sky text-white shadow-[0_8px_18px_-6px_rgba(108,124,255,0.8)]">
-            <Icon name="logo" className="h-5 w-5" />
-          </span>
+        <a href="#top" className="flex items-end gap-2.5">
+          <Image
+            src="/logo-transparent.png"
+            alt=""
+            width={371}
+            height={371}
+            className="h-7 w-auto"
+            priority
+          />
           <span
             className="text-lg font-bold tracking-tight"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            IEDC Hub
+            HUB
           </span>
         </a>
 
