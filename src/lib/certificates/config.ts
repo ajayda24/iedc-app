@@ -29,13 +29,13 @@ export const CERT_SIGNATORIES: CertSignatory[] = [
     name: 'Ms. Chithra V',
     role: 'Nodal Officer, IEDC IET',
     // e.g. '/certificates/sign-nodal.png'
-    signatureUrl: null,
+    signatureUrl: '/certificate/nodal_officer_sign.png',
   },
   {
     name: 'Dr. Jaya C K',
     role: 'Principal, IET',
     // e.g. '/certificates/sign-principal.png'
-    signatureUrl: null,
+    signatureUrl: '/certificate/principal_sign.png',
   },
 ]
 
@@ -49,10 +49,10 @@ export interface CertLogo {
 }
 
 export const CERT_LOGOS: CertLogo[] = [
-  // Drop the real logo files in public/certificates/ and list them here, e.g.:
-  // { src: '/certificates/iic.png', alt: "Institution's Innovation Council" },
-  // { src: '/certificates/iedc.png', alt: 'IEDC IETCU' },
-  // { src: '/certificates/ksum.png', alt: 'Kerala Startup Mission — IEDC' },
+  {
+    src: '/iet-logo-transparent.png',
+    alt: 'University of Calicut — Institute of Engineering & Technology',
+  },
 ]
 
 // A large, faint watermark centered behind the certificate body (e.g. the
@@ -61,9 +61,9 @@ export const CERT_LOGOS: CertLogo[] = [
 // `src` to null to disable the watermark entirely.
 export const CERT_WATERMARK = {
   // e.g. '/certificates/university-seal.png'
-  src: null as string | null,
+  src: '/certificate/Uni_of_cali.png' as string | null,
   alt: 'University seal',
-  opacity: 0.06,
+  opacity: 0.03,
   // Watermark diameter as a share of the certificate width (0–1).
-  scale: 0.42,
+  scale: 0.32,
 }

@@ -16,12 +16,12 @@ import type { CertificateType } from '@/lib/supabase/database.types'
 
 const VARIANTS: Record<CertificateType, CertificateTypeVariant> = {
   participation: {
-    accent: '#7a6cff', // indigo
-    accent2: '#6c8cff', // blue
+    accent: '#4F7CFF', // indigo
+    accent2: '#7AB6FF', // blue
     // Highlight color for event/date/placement in the citation.
-    highlightColor: '#7a6cff',
+    highlightColor: '#4F7CFF',
     // Recipient name fill (gradient or a solid color).
-    nameGradient: 'linear-gradient(100deg, #7a6cff, #6c8cff 70%)',
+    nameGradient: 'linear-gradient(100deg,#4F7CFF,#7AB6FF)',
     kicker: 'Certificate of Participation',
     lead: 'This certifies that',
     citation: ({ event, date, hasEvent }) => (
@@ -33,12 +33,12 @@ const VARIANTS: Record<CertificateType, CertificateTypeVariant> = {
     ),
   },
   winner: {
-    accent: '#e6b34a', // gold
-    accent2: '#ffb088', // peach
+    accent: '#C99A1A', // gold
+    accent2: '#FFD76A', // peach
     // Highlight color for event/date/placement in the citation.
-    highlightColor: '#ffb088',
+    highlightColor: '#C99A1A',
     // Recipient name fill (gradient or a solid color).
-    nameGradient: 'linear-gradient(100deg, #e6b34a, #ffb088 70%)',
+    nameGradient: 'linear-gradient(100deg,#FFD71F,#FFD76A)',
     kicker: 'Certificate of Achievement',
     lead: 'Awarded to',
     citation: ({ event, date, hasEvent, hi }) => (
@@ -50,12 +50,12 @@ const VARIANTS: Record<CertificateType, CertificateTypeVariant> = {
     ),
   },
   runnerup: {
-    accent: '#74d0ff', // sky
-    accent2: '#7a6cff', // indigo
+    accent: '#7C879A', // sky
+    accent2: '#D9E1EC', // indigo
     // Highlight color for event/date/placement in the citation.
-    highlightColor: '#74d0ff',
+    highlightColor: '#7C879A',
     // Recipient name fill (gradient or a solid color).
-    nameGradient: 'linear-gradient(100deg, #74d0ff, #7a6cff 70%)',
+    nameGradient: 'linear-gradient(100deg,#D9E1EC,#D9E1EC)',
     kicker: 'Certificate of Excellence',
     lead: 'Awarded to',
     citation: ({ event, date, hasEvent, hi }) => (
@@ -67,12 +67,12 @@ const VARIANTS: Record<CertificateType, CertificateTypeVariant> = {
     ),
   },
   volunteer: {
-    accent: '#5fe3c0', // mint
-    accent2: '#74d0ff', // sky
+    accent: '#18A67A', // mint
+    accent2: '#64E0B4', // sky
     // Highlight color for event/date/placement in the citation.
-    highlightColor: '#5fe3c0',
+    highlightColor: '#18A67A',
     // Recipient name fill (gradient or a solid color).
-    nameGradient: 'linear-gradient(100deg, #5fe3c0, #74d0ff 70%)',
+    nameGradient: 'linear-gradient(100deg,#18A67A,#64E0B4)',
     kicker: 'Certificate of Appreciation',
     lead: 'Presented to',
     citation: ({ event, date, hasEvent }) => (
@@ -119,8 +119,8 @@ export default function Aurora({ data }: { data: CertificateData }) {
     <div
       className="aurora-cert"
       style={accentVars(v)}
-      // A4 landscape @96dpi. Fixed so export == preview.
-      // container-type lets children size in cqw.
+    // A4 landscape @96dpi. Fixed so export == preview.
+    // container-type lets children size in cqw.
     >
       <span className="aurora-blob aurora-blob-a" />
       <span className="aurora-blob aurora-blob-b" />
@@ -183,39 +183,45 @@ export default function Aurora({ data }: { data: CertificateData }) {
             Everything here comes from lib/certificates/config.ts (signatories,
             logos) so the bottom section is tweakable without touching JSX. */}
         <div className="aurora-foot">
-          {data.signatories.map((s, i) => (
-            <div className="aurora-sig" key={i}>
-              {s.signatureUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={s.signatureUrl}
-                  alt=""
-                  className="aurora-sig-img"
-                />
-              ) : (
-                <div className="aurora-sig-scribble" aria-hidden />
-              )}
-              <div className="aurora-sig-line" />
-              <div className="aurora-sig-name">{s.name}</div>
-              <div className="aurora-sig-role">{s.role}</div>
-            </div>
-          ))}
-
-          {/* Partner / affiliation logos, centered between the signatures. */}
-          {data.logos.length > 0 && (
-            <div className="aurora-logos" aria-hidden>
-              {data.logos.map((logo, i) => (
-                <Image
-                  key={i}
-                  src={logo.src}
-                  alt={logo.alt}
-                  width={120}
-                  height={80}
-                  className="aurora-logo-img"
-                />
-              ))}
-            </div>
-          )}
+          {data.signatories.map((s, i) => {
+            const sig = (
+              <div className="aurora-sig" key={`sig-${i}`}>
+                {s.signatureUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={s.signatureUrl}
+                    alt=""
+                    className="aurora-sig-img"
+                  />
+                ) : (
+                  <div className="aurora-sig-scribble" aria-hidden />
+                )}
+                <div className="aurora-sig-line" />
+                <div className="aurora-sig-name">{s.name}</div>
+                <div className="aurora-sig-role">{s.role}</div>
+              </div>
+            )
+            // Render the centered logo strip AFTER the first signatory so it
+            // sits between the two signatures rather than off to one side.
+            if (i === 0 && data.logos.length > 0) {
+              return [
+                sig,
+                <div className="aurora-logos" aria-hidden key="logos">
+                  {data.logos.map((logo, j) => (
+                    <Image
+                      key={j}
+                      src={logo.src}
+                      alt={logo.alt}
+                      width={120}
+                      height={80}
+                      className="aurora-logo-img"
+                    />
+                  ))}
+                </div>,
+              ]
+            }
+            return sig
+          })}
         </div>
 
         {/* <div className="aurora-verify">
