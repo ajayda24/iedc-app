@@ -590,6 +590,577 @@ html.lenis body {
 }
 .aurora-verify-sep { opacity: 0.5; }
 
+/* ============ Certificate: Meridian template ============ */
+/* Formal counterpart to Aurora. Same fixed A4 box and the same --a/--a2/--hi/
+   --name-grad inline vars, so both templates share the canvas and export path.
+   Difference in approach: Meridian centers its body, frames the page with a
+   double rule + corner filigree, and keeps the recipient name in deep ink at
+   every certificate type (metallics live on the frame, never in the text). */
+.mrd-cert {
+  position: relative;
+  width: 1123px;
+  height: 794px;
+  flex: none;
+  overflow: hidden;
+  border-radius: 26px;
+  container-type: inline-size;
+  font-family: var(--font-display), var(--font-geist-sans), system-ui, sans-serif;
+  color: var(--ink);
+  /* Warm paper base with a faint accent wash in opposite corners — much
+     quieter than Aurora's blobs, so the frame reads as the primary structure. */
+  background:
+    radial-gradient(80% 60% at 0% 0%, color-mix(in srgb, var(--a) 10%, transparent), transparent 60%),
+    radial-gradient(80% 60% at 100% 100%, color-mix(in srgb, var(--a2) 12%, transparent), transparent 60%),
+    #fdfdfb;
+}
+
+/* Double rule frame: outer hairline in accent, inner thin line offset inward. */
+.mrd-frame {
+  content: "";
+  position: absolute;
+  inset: 2.4cqw;
+  border-radius: 14px;
+  border: 0.22cqw solid color-mix(in srgb, var(--a) 55%, transparent);
+  pointer-events: none;
+  z-index: 3;
+}
+.mrd-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0.62cqw;
+  border-radius: 9px;
+  border: 1px solid color-mix(in srgb, var(--a) 30%, transparent);
+}
+
+/* Corner filigree — small metallic brackets sitting on the frame corners.
+   Two gradients form an L; this is where the gold/silver actually shows. */
+.mrd-corner {
+  position: absolute;
+  width: 5.4cqw;
+  height: 5.4cqw;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--a), var(--a2)) left top / 0.34cqw 100% no-repeat,
+    linear-gradient(90deg, var(--a), var(--a2)) left top / 100% 0.34cqw no-repeat;
+  opacity: 0.9;
+}
+.mrd-corner-tl { left: 3.5cqw;  top: 3.5cqw; }
+.mrd-corner-tr { right: 3.5cqw; top: 3.5cqw; transform: scaleX(-1); }
+.mrd-corner-bl { left: 3.5cqw;  bottom: 3.5cqw; transform: scaleY(-1); }
+.mrd-corner-br { right: 3.5cqw; bottom: 3.5cqw; transform: scale(-1, -1); }
+
+.mrd-watermark {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 1;
+  filter: grayscale(1);
+}
+
+.mrd-inner {
+  position: absolute;
+  inset: 2.4cqw;
+  padding: 4.6cqw 7cqw;
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+}
+
+/* ---- header ---- */
+.mrd-top {
+  display: flex; align-items: center; justify-content: space-between; gap: 2cqw;
+}
+.mrd-brand { display: flex; align-items: center; gap: 1.2cqw; }
+.mrd-crest-img { height: 4.4cqw; width: auto; object-fit: contain; display: block; }
+.mrd-brand-text { display: flex; flex-direction: column; gap: 0.15cqw; }
+.mrd-org-name { font-weight: 700; font-size: 1.5cqw; letter-spacing: 0.02em; }
+.mrd-org-sub {
+  font-size: 0.95cqw; color: var(--muted);
+  letter-spacing: 0.24em; text-transform: uppercase;
+}
+.mrd-serial { text-align: right; }
+.mrd-serial-k {
+  font-size: 0.88cqw; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted);
+}
+.mrd-serial-v {
+  font-size: 1.2cqw; font-weight: 600; letter-spacing: 0.06em; color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- center (all centered) ---- */
+.mrd-body {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 1.4cqw 0;
+}
+.mrd-kicker {
+  font-size: 1.15cqw; font-weight: 700; letter-spacing: 0.38em;
+  text-transform: uppercase; color: var(--a);
+  /* letter-spacing adds a trailing gap; nudge back so it optically centers. */
+  text-indent: 0.38em;
+}
+/* Foil rule under the kicker — a short metallic bar, tapered at both ends. */
+.mrd-foil {
+  display: block;
+  width: 14cqw; height: 0.3cqw;
+  margin: 1cqw 0 1.8cqw;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+    transparent,
+    color-mix(in srgb, var(--a) 70%, transparent) 18%,
+    var(--a2) 50%,
+    color-mix(in srgb, var(--a) 70%, transparent) 82%,
+    transparent);
+}
+.mrd-lead {
+  font-size: 1.3cqw; color: var(--ink-soft); margin: 0;
+  letter-spacing: 0.04em;
+}
+/* Deep ink at every type — the contrast guarantee. --name-grad is a solid
+   color here, but stays a background so a future variant could use a
+   gradient without changing this rule. */
+.mrd-recipient {
+  font-weight: 800; font-size: 6.4cqw; line-height: 1.06;
+  letter-spacing: -0.02em;
+  margin: 0.9cqw 0 0;
+  max-width: 76cqw;
+  background: var(--name-grad);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+/* Flourish under the name: hairline with a small accent diamond at center. */
+.mrd-underline {
+  position: relative;
+  width: 34cqw; height: 1px;
+  margin: 1.5cqw 0 1.9cqw;
+  background: linear-gradient(90deg,
+    transparent,
+    color-mix(in srgb, var(--ink) 26%, transparent) 22%,
+    color-mix(in srgb, var(--ink) 26%, transparent) 78%,
+    transparent);
+}
+.mrd-underline::after {
+  content: "";
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 0.72cqw; height: 0.72cqw;
+  transform: translate(-50%, -50%) rotate(45deg);
+  background: linear-gradient(135deg, var(--a), var(--a2));
+}
+.mrd-cite {
+  font-size: 1.42cqw; line-height: 1.62; color: var(--ink-soft);
+  max-width: 60cqw; margin: 0;
+}
+.mrd-hi { color: var(--hi); font-weight: 700; }
+
+/* ---- footer (mirrors Aurora so config.ts drives both) ---- */
+.mrd-foot {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 2cqw; margin-top: auto;
+}
+.mrd-sig { min-width: 16cqw; max-width: 20cqw; text-align: center; }
+.mrd-sig-img {
+  height: 7.4cqw; width: auto; max-width: 100%;
+  object-fit: contain; object-position: center bottom;
+  display: block; margin: 0 auto;
+}
+.mrd-sig-scribble {
+  height: 3.2cqw; margin-bottom: 0.4cqw;
+  background:
+    radial-gradient(1.2cqw 0.5cqw at 30% 60%, color-mix(in srgb, var(--ink) 20%, transparent), transparent 70%),
+    radial-gradient(1.6cqw 0.6cqw at 60% 45%, color-mix(in srgb, var(--ink) 16%, transparent), transparent 70%);
+  opacity: 0.5;
+}
+.mrd-sig-line {
+  height: 1px; margin-bottom: 0.75cqw;
+  background: color-mix(in srgb, var(--ink) 32%, transparent);
+}
+.mrd-sig-name { font-size: 1.42cqw; font-weight: 600; }
+.mrd-sig-role {
+  font-size: 0.9cqw; color: var(--muted);
+  letter-spacing: 0.12em; text-transform: uppercase; margin-top: 0.25cqw;
+}
+.mrd-logos {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  gap: 2.4cqw; padding-bottom: 0.4cqw;
+}
+.mrd-logo-img { height: 9cqw; width: auto; max-width: 20cqw; object-fit: contain; }
+
+/* ============ Certificate: Laurel template ============ */
+/* Split layout: light content area + a deep vertical panel on the right that
+   carries the seal and credential facts. Same fixed A4 box and the same
+   --a/--a2/--hi/--name-grad vars as Aurora/Meridian, plus --panel/--panel2
+   (side-band gradient) and --ring/--ring2 (seal metal). */
+.lrl-cert {
+  position: relative;
+  width: 1123px;
+  height: 794px;
+  flex: none;
+  overflow: hidden;
+  border-radius: 26px;
+  container-type: inline-size;
+  display: flex;
+  font-family: var(--font-display), var(--font-geist-sans), system-ui, sans-serif;
+  color: var(--ink);
+  background: #fcfcfa;
+}
+
+/* Corner blocks on the light side (ref. 3). */
+.lrl-corner {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+}
+/* A single accent spine down the left edge — cleaner than a floating block,
+   and it balances the dark panel on the opposite side. */
+.lrl-corner-tl {
+  left: 0; top: 0; bottom: 0;
+  width: 1.15cqw;
+  background: linear-gradient(180deg, var(--a), var(--a2) 55%, color-mix(in srgb, var(--a) 30%, transparent));
+}
+.lrl-corner-bl { display: none; }
+
+.lrl-watermark {
+  position: absolute;
+  top: 50%; left: 30%;
+  transform: translate(-50%, -50%);
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 0;
+  filter: grayscale(1);
+}
+
+/* ---------- left content column ---------- */
+.lrl-main {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 4.6cqw 3.4cqw 4cqw 5.4cqw;
+}
+
+.lrl-brand { display: flex; align-items: center; gap: 1.1cqw; }
+.lrl-brand-logo { height: 3.9cqw; width: auto; object-fit: contain; display: block; }
+.lrl-brand-text { display: flex; flex-direction: column; gap: 0.1cqw; }
+.lrl-org-name { font-weight: 700; font-size: 1.45cqw; letter-spacing: 0.02em; }
+.lrl-org-sub {
+  font-size: 0.86cqw; color: var(--muted);
+  letter-spacing: 0.24em; text-transform: uppercase;
+}
+
+.lrl-body {
+  flex: 1;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 1.6cqw 0;
+}
+.lrl-kicker-wrap { display: flex; align-items: center; gap: 1.1cqw; }
+.lrl-kicker {
+  font-size: 1.5cqw; font-weight: 800; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--a);
+  white-space: nowrap;
+}
+/* Rule running off toward the panel — echoes the reference divider. */
+.lrl-kicker-rule {
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--a) 55%, transparent), transparent);
+}
+
+.lrl-lead {
+  font-size: 1.22cqw; color: var(--muted);
+  margin: 2.1cqw 0 0; letter-spacing: 0.04em;
+}
+/* Deep ink at every type — never a metallic text fill. */
+.lrl-recipient {
+  /* Formal script (loaded in app/layout.tsx as --font-script). Great Vibes
+     has tall ascenders and deep descenders, so line-height and padding are
+     generous or the glyph tails clip. */
+  font-family: var(--font-script), "Segoe Script", cursive;
+  font-weight: 400;
+  font-size: 7.4cqw;
+  line-height: 1.18;
+  letter-spacing: 0.005em;
+  margin: 0.5cqw 0 0;
+  padding: 0.2cqw 0 0.5cqw;
+  color: var(--name-grad);
+}
+.lrl-name-rule {
+  width: 62%; height: 2px;
+  margin: 0.5cqw 0 1.7cqw;
+  background: linear-gradient(90deg, var(--a), color-mix(in srgb, var(--a2) 60%, transparent) 55%, transparent);
+}
+.lrl-cite {
+  font-size: 1.32cqw; line-height: 1.66; color: var(--ink-soft);
+  max-width: 49cqw; margin: 0;
+}
+.lrl-hi { color: var(--hi); font-weight: 700; }
+
+/* signatures */
+.lrl-foot {
+  /* space-between spreads the signatures across the full content width
+     instead of bunching them at the left. */
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 4.5cqw;
+  margin-top: auto;
+  padding-right: 2cqw;
+}
+.lrl-sig { flex: 1; max-width: 17cqw; }
+/* Institution logos, centered between the two signatures. No invert filter:
+   these are dark marks and they sit on light paper, so they keep their
+   original colors. Bottom-aligned with the signature name rules. */
+.lrl-logos {
+  flex: none;
+  display: flex; align-items: flex-end; justify-content: center;
+  gap: 1.8cqw;
+  padding-bottom: 0.6cqw;
+}
+.lrl-logo-img {
+  height: 7.2cqw; width: auto; max-width: 13cqw;
+  object-fit: contain;
+  display: block;
+}
+.lrl-sig-img {
+  height: 5.4cqw; width: auto; max-width: 100%;
+  object-fit: contain; object-position: left bottom;
+  display: block; margin-bottom: 0.2cqw;
+}
+.lrl-sig-gap { height: 5.6cqw; }
+.lrl-sig-line { height: 1px; background: color-mix(in srgb, var(--ink) 34%, transparent); margin-bottom: 0.7cqw; }
+.lrl-sig-name { font-size: 1.24cqw; font-weight: 700; }
+.lrl-sig-role {
+  font-size: 0.82cqw; color: var(--muted);
+  letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.2cqw;
+}
+
+/* ---------- right dark panel ---------- */
+.lrl-panel {
+  position: relative;
+  width: 31cqw;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  /* Two anchored clusters, not four floating tiers. space-between across four
+     children of very different weight was what produced the dead zone between
+     the award and the issuer line: the slack all landed in one gap. The
+     masthead (seal + award) sits at the top, the record (facts + issuer) at
+     the bottom, and the slack falls between the two groups where it reads as
+     deliberate breathing room. */
+  justify-content: space-between;
+  color: #fff;
+  /* No background and no border-radius: .lrl-panel-shape paints both. The
+     panel element is purely the layout box for the content tiers.
+
+     The edge's innermost point is the straight run at x=40 in the shape's
+     348-wide viewBox; 348 maps to 31cqw, so that is ~3.6cqw. Padding is
+     5.4cqw, clearing it with a ~1.8cqw gutter. The top sweep starts further
+     right, but it is above the content tiers rather than beside them. */
+  padding: 3.6cqw 2.8cqw 3.4cqw 5.4cqw;
+}
+/* The two content clusters. Each is a normal flow column; the panel's
+   space-between only has to separate these two, so the slack is predictable. */
+.lrl-panel-top,
+.lrl-panel-bottom {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column;
+  width: 100%;
+}
+/* The masthead takes a share of the slack and centres within it, so the seal
+   sits in the upper third rather than pinned hard against the padding edge.
+   The record stays anchored at the bottom. */
+.lrl-panel-top {
+  align-items: center;
+  flex: 0 1 auto;
+  margin-top: 2.4cqw;
+}
+.lrl-panel-bottom { flex: none; }
+
+/* Painted panel shape: gradient fill, dot texture, and edge hairline. Painted
+   rather than clipped so the seal can overhang the left edge uncut. */
+.lrl-panel-shape {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: visible;
+}
+
+/* Seal: notched metallic disc on a ribbon, pushed left to straddle the seam. */
+.lrl-seal {
+  position: relative;
+  /* Centred within .lrl-panel-top. A small negative offset pulls it back over
+     the field opened by the top sweep, which is left of the padded column's
+     own centre. */
+  margin-left: -1.2cqw;
+  align-self: center;
+  z-index: 5;
+}
+/* Ribbon tail behind the disc. */
+.lrl-seal-ribbon {
+  position: absolute;
+  left: 50%; top: 62%;
+  transform: translateX(-50%);
+  width: 4.6cqw; height: 7.6cqw;
+  background: linear-gradient(180deg, var(--ring2), color-mix(in srgb, var(--ring2) 55%, #000));
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 74%, 0 100%);
+  opacity: 0.95;
+}
+.lrl-seal-disc {
+  position: relative;
+  width: 11.4cqw; height: 11.4cqw;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: linear-gradient(145deg, var(--ring), var(--ring2) 62%, color-mix(in srgb, var(--ring2) 70%, #000));
+  box-shadow:
+    /* paper-colored halo: separates the disc from BOTH the dark panel and the
+       light paper it overhangs */
+    0 0 0 0.52cqw #fcfcfa,
+    0 0 0 0.78cqw color-mix(in srgb, var(--ring2) 45%, transparent),
+    0 1.1cqw 2.6cqw -0.6cqw rgba(0,0,0,0.45);
+}
+/* Notched (gear-tooth) edge via a repeating conic ring — the scalloped look. */
+.lrl-seal-notch {
+  position: absolute; inset: -0.5cqw;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    var(--ring) 0deg 7deg, transparent 7deg 14deg);
+  opacity: 0.55;
+  z-index: -1;
+}
+.lrl-seal-inner {
+  width: 8.8cqw; height: 8.8cqw;
+  border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 0.42cqw;
+  background: linear-gradient(150deg,
+    color-mix(in srgb, var(--panel) 82%, #000),
+    color-mix(in srgb, var(--panel2) 92%, #000));
+  border: 0.14cqw solid color-mix(in srgb, var(--ring) 55%, transparent);
+  text-align: center;
+  padding: 0 0.7cqw;
+}
+.lrl-seal-type {
+  font-size: 1.12cqw; font-weight: 800; line-height: 1.15;
+  color: var(--ring);
+  letter-spacing: 0.02em;
+}
+.lrl-seal-div {
+  width: 3.4cqw; height: 1px;
+  background: color-mix(in srgb, var(--ring) 60%, transparent);
+}
+.lrl-seal-org {
+  font-size: 0.78cqw; font-weight: 700;
+  letter-spacing: 0.3em; text-indent: 0.3em;
+  color: rgba(255,255,255,0.72);
+}
+
+/* Credential facts stack. */
+.lrl-panel-facts {
+  position: relative; z-index: 2;
+  width: 100%;
+  display: flex; flex-direction: column;
+  gap: 1.15cqw;
+  padding: 0;
+  margin-bottom: 2.2cqw;
+  box-sizing: border-box;
+}
+/* Each fact is a stacked key-over-value block behind a short accent rule.
+   The old version put key and value on one baseline separated by
+   space-between, which left a ragged gap down the middle of every row and
+   made the whole block read as a loose table. Stacked and left-aligned, the
+   values form a single strong left edge. */
+.lrl-fact {
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 0.3cqw;
+  padding-left: 0.9cqw;
+  border-left: 2px solid color-mix(in srgb, var(--ring) 34%, transparent);
+}
+/* Every row is stacked now, so the serial needs no special case; the class is
+   kept because the markup still carries it. */
+.lrl-fact-stack { gap: 0.3cqw; }
+.lrl-fact-k {
+  font-size: 0.68cqw; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
+}
+.lrl-fact-v {
+  font-size: 1.12cqw; font-weight: 600; color: #fff;
+  line-height: 1.25; text-align: left;
+  overflow-wrap: anywhere;
+}
+.lrl-fact-mono {
+  font-family: var(--font-geist-sans), ui-monospace, monospace;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--ring) 80%, #fff);
+}
+
+/* Award block — the panel headline, directly under the seal. */
+.lrl-award {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center;
+  gap: 0.5cqw;
+  /* Sits directly under the seal inside .lrl-panel-top, so it needs only a
+     small optical gap rather than the large one space-between used to add. */
+  margin-top: 1.9cqw;
+  padding: 0 0.2cqw;
+  width: 100%;
+}
+.lrl-award-k {
+  font-size: 0.72cqw; font-weight: 600;
+  letter-spacing: 0.34em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--ring) 62%, transparent);
+  text-indent: 0.34em;
+}
+.lrl-award-v {
+  font-size: 2.75cqw; font-weight: 800; line-height: 1.06;
+  letter-spacing: -0.015em;
+  /* Metallic fill reads correctly here: it sits on the DARK panel. */
+  background: linear-gradient(112deg, #fff 12%, var(--ring) 58%, var(--ring2));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  /* Wraps rather than overflowing when a type label is long. */
+  max-width: 100%; overflow-wrap: break-word;
+}
+.lrl-award-ev {
+  font-size: 1cqw; line-height: 1.4;
+  color: rgba(255, 255, 255, 0.62);
+  max-width: 20cqw;
+  margin-top: 0.7cqw;
+  padding-top: 0.9cqw;
+  border-top: 1px solid rgba(255, 255, 255, 0.13);
+}
+
+/* Panel footer: divider + issuer line (logos live in the signature row). */
+/* Left-aligned to share the facts record's edge — centered text under a
+   left-aligned block was part of what read as scattered. */
+.lrl-panel-foot {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 0.9cqw;
+  padding-top: 1.5cqw;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+.lrl-panel-div { display: none; }
+.lrl-panel-issuer {
+  font-size: 0.72cqw; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+  text-align: left;
+}
+
 /* ---- Certificate canvas: scale the fixed 1123×794 node to fit width ---- */
 .cert-canvas {
   container-type: inline-size;

@@ -33,12 +33,14 @@ const VARIANTS: Record<CertificateType, CertificateTypeVariant> = {
     ),
   },
   winner: {
-    accent: '#C99A1A', // gold
-    accent2: '#FFD76A', // peach
+    accent: '#A87A12', // gold
+    accent2: '#E0B23C', // light gold
     // Highlight color for event/date/placement in the citation.
-    highlightColor: '#C99A1A',
-    // Recipient name fill (gradient or a solid color).
-    nameGradient: 'linear-gradient(100deg,#FFD71F,#FFD76A)',
+    highlightColor: '#8A6410',
+    // Recipient name fill. Deep bronze -> gold: the previous pale
+    // #FFD71F/#FFD76A pair rendered the name at ~1.4:1 on white, effectively
+    // invisible. Keeps the gold read while staying legible in print.
+    nameGradient: 'linear-gradient(100deg,#6B4A05,#B8871A 70%)',
     kicker: 'Certificate of Achievement',
     lead: 'Awarded to',
     citation: ({ event, date, hasEvent, hi }) => (
@@ -50,12 +52,14 @@ const VARIANTS: Record<CertificateType, CertificateTypeVariant> = {
     ),
   },
   runnerup: {
-    accent: '#7C879A', // sky
-    accent2: '#D9E1EC', // indigo
+    accent: '#5A6B84', // slate
+    accent2: '#A8B8CE', // light slate
     // Highlight color for event/date/placement in the citation.
-    highlightColor: '#7C879A',
-    // Recipient name fill (gradient or a solid color).
-    nameGradient: 'linear-gradient(100deg,#D9E1EC,#D9E1EC)',
+    highlightColor: '#4A5A72',
+    // Recipient name fill. Deep slate -> steel: the previous flat #D9E1EC
+    // read as near-white text on white. Silver now lives in the accent and
+    // the rule, not in the name itself.
+    nameGradient: 'linear-gradient(100deg,#2C3A4F,#5A6B84 70%)',
     kicker: 'Certificate of Excellence',
     lead: 'Awarded to',
     citation: ({ event, date, hasEvent, hi }) => (

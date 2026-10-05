@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Sora } from "next/font/google";
+import { Great_Vibes } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,6 +13,16 @@ const display = Sora({
   variable: "--font-display",
   subsets: ["latin"],
   weight: ["500", "600", "700", "800"],
+});
+
+// Formal script used for the recipient name on the Laurel certificate.
+// Loaded here (not via a CSS `cursive` keyword) because the PNG/PDF export
+// rasterizes what the browser has actually loaded — a generic family would
+// export differently from the preview.
+const script = Great_Vibes({
+  variable: "--font-script",
+  subsets: ["latin"],
+  weight: ["400"],
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://iedchub.vercel.app";
@@ -75,7 +86,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${display.variable} antialiased`}
+      className={`${geistSans.variable} ${display.variable} ${script.variable} antialiased`}
     >
       <body>{children}</body>
     </html>
