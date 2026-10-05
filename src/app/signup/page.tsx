@@ -13,12 +13,21 @@ export const metadata = {
   description: 'Create your IEDC Hub account.',
 }
 
-export default async function SignupPage() {
+export default async function SignupPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ id?: string }>
+}) {
   // Only skip signup if the account is fully set up (has a profile). A session
   // alone is not enough: it exists mid-flow, between OTP verify (step 2) and
   // password creation (step 3), and must NOT bounce the user off this page.
   const profile = await getProfile()
   if (profile) redirect('/dashboard')
+
+  // Prefill from public pages; same shape the server validates.
+  const { id } = await searchParams
+  const initialStudentId =
+    id && /^[A-Za-z0-9-]{3,32}$/.test(id) ? id.toUpperCase() : ''
 
   return (
     <main className="relative min-h-dvh overflow-hidden">
@@ -41,7 +50,12 @@ export default async function SignupPage() {
           IEDC Hub
         </Link>
 
-        <SignupFlow />
+        <SignupFlow initialStudentId={initialStudentId} />
+
+        <p className="mt-4 rounded-2xl bg-indigo/[0.06] px-4 py-3 text-center text-sm text-ink-soft">
+          Registered for events without an account? They&apos;ll be added to
+          your account automatically, along with any certificates.
+        </p>
 
         <p className="mt-6 text-center text-sm text-ink-soft">
           Already have an account?{' '}

@@ -93,7 +93,12 @@ export interface EventRow {
 export interface EventRegistration {
   id: string
   event_id: string
-  profile_id: string
+  // NULL for a guest registration made from the public site before the
+  // student created an account (see public-registrations.sql). Filled in
+  // automatically when the matching profile is created.
+  profile_id: string | null
+  student_id: string
+  source: 'account' | 'public'
   status: RegistrationStatus
   registered_at: string
   attendance_marked_at: string | null

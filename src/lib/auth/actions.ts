@@ -180,7 +180,50 @@ export async function completeSignup(
     if (insErr) return { ok: false, error: insErr.message }
   }
 
+  // Guest registrations made from the public site were linked to this profile
+  // by the trg_claim_guest_regs DB trigger. Issue the participation
+  // certificates they missed out on while they had no account. Best effort —
+  // the account is created either way.
+  try {
+    await issueClaimedCertificates(admin, user.id)
+  } catch (err) {
+    console.error('claimed certificate issuance failed', err)
+  }
+
   return { ok: true, data: undefined }
+}
+
+// Participation certificates for every attended registration of a completed
+// event that this profile doesn't have one for yet. Mirrors the auto-issue rule
+// used when staff mark a student Present on a completed event.
+async function issueClaimedCertificates(
+  admin: ReturnType<typeof createAdminClient>,
+  profileId: string
+): Promise<void> {
+  const [{ data: regs }, { data: certs }] = await Promise.all([
+    admin
+      .from('event_registrations')
+      .select('event_id, event:events!inner(status)')
+      .eq('profile_id', profileId)
+      .eq('status', 'attended')
+      .eq('event.status', 'completed'),
+    admin.from('certificates').select('event_id').eq('profile_id', profileId),
+  ])
+
+  const have = new Set((certs ?? []).map((c) => c.event_id as string | null))
+  const todo = (regs ?? [])
+    .map((r) => r.event_id as string)
+    .filter((id) => !have.has(id))
+  if (todo.length === 0) return
+
+  const { error } = await admin.from('certificates').insert(
+    todo.map((event_id) => ({
+      profile_id: profileId,
+      event_id,
+      certificate_type: 'participation',
+    }))
+  )
+  if (error) throw error
 }
 
 // ---------------------------------------------------------------------------

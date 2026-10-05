@@ -191,7 +191,9 @@ export async function markAttendanceAction(
   // saved; a certificate hiccup shouldn't fail the whole action, so we don't
   // surface these errors, but we log them for debugging.
   const event = await getEvent(eventId)
-  if (event?.status === 'completed') {
+  // Guests (profile_id NULL) have no account to hold a certificate yet; theirs
+  // is issued on signup (see completeSignup).
+  if (event?.status === 'completed' && reg.profile_id) {
     try {
       await syncParticipationCertificate(supabase, eventId, reg.profile_id, status)
     } catch (err) {

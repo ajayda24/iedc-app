@@ -49,11 +49,26 @@ export default function Navbar() {
           </a>
         </div> */}
 
-        <Link href="/dashboard">
-          <button className="btn-primary rounded-xl px-4 py-2 text-sm font-semibold">
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Link
+            href="/events"
+            className="rounded-xl px-3 py-2 text-sm font-semibold text-ink-soft transition-colors hover:text-ink"
+          >
+            Events
+          </Link>
+          <Link
+            href="/certificates"
+            className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-ink-soft transition-colors hover:text-ink sm:inline-flex"
+          >
+            Certificates
+          </Link>
+          <Link
+            href="/dashboard"
+            className="btn-primary ml-1 rounded-xl px-4 py-2 text-sm font-semibold"
+          >
             Get Started
-          </button>
-        </Link>
+          </Link>
+        </div>
       </nav>
     </header>
   );

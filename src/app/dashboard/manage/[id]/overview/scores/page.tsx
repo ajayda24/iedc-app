@@ -25,7 +25,15 @@ export default async function EventScoresPage({
   if (!event) notFound()
 
   // Scores only make sense for people who attended.
-  const attendees = regs.filter((r) => r.status === 'attended')
+  // Guests (registered from the public site, no account yet) can't hold a
+  // score row until they sign up, so they're listed separately below.
+  const attendees = regs.filter(
+    (r): r is typeof r & { profile_id: string } =>
+      r.status === 'attended' && !!r.profile_id
+  )
+  const guestAttendees = regs.filter(
+    (r) => r.status === 'attended' && !r.profile_id
+  ).length
 
   const scoreByProfile = new Map(scores.map((s) => [s.profile_id, s]))
 
@@ -65,6 +73,12 @@ export default async function EventScoresPage({
           Enter a score and an optional rank (1 = winner). Scores add to the
           student&apos;s points. Winner certificates stay manual on the overview.
         </p>
+        {guestAttendees > 0 && (
+          <p className="text-sm text-muted mt-1">
+            {guestAttendees} guest attendee{guestAttendees === 1 ? '' : 's'}{' '}
+            without an account can be scored once they sign up.
+          </p>
+        )}
       </div>
 
       <Card className="p-0 overflow-hidden">

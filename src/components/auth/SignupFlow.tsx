@@ -13,7 +13,13 @@ import {
 const STEPS = ['Student ID', 'Verify', 'Complete'] as const
 type StepIndex = 0 | 1 | 2
 
-export default function SignupFlow() {
+// `initialStudentId` prefills step 1 when arriving from a public registration
+// or the certificates lookup (/signup?id=...).
+export default function SignupFlow({
+  initialStudentId = '',
+}: {
+  initialStudentId?: string
+}) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
 
@@ -21,7 +27,7 @@ export default function SignupFlow() {
   const [error, setError] = useState<string | null>(null)
 
   // Carried between steps.
-  const [studentId, setStudentId] = useState('')
+  const [studentId, setStudentId] = useState(initialStudentId)
   const [email, setEmail] = useState('') // real on-file email (from step 1)
   const [emailHint, setEmailHint] = useState('') // masked, for display
   const [code, setCode] = useState('')

@@ -49,9 +49,15 @@ export default async function EventOverviewPage({
     })
   }
   // Attendees still missing a certificate — drives the bulk-issue button.
+  // Guests (no account yet) are excluded: their participation certificate is
+  // issued automatically when they sign up.
   const pendingCerts = regs.filter(
-    (r) => r.status === 'attended' && !certByProfile.has(r.profile_id)
+    (r) =>
+      r.status === 'attended' &&
+      r.profile_id &&
+      !certByProfile.has(r.profile_id)
   ).length
+  const guestCount = active.filter((r) => !r.profile_id).length
 
   return (
     <div className="space-y-5">
@@ -105,7 +111,11 @@ export default async function EventOverviewPage({
           </h2>
           <p className="text-sm text-muted mt-0.5">
             {canIssue
-              ? `${certs.length} issued · participation is auto-issued when a student is marked Present.`
+              ? `${certs.length} issued · participation is auto-issued when a student is marked Present.${
+                  guestCount > 0
+                    ? ' Guests receive theirs when they create an account.'
+                    : ''
+                }`
               : 'Mark the event as completed to issue certificates to attendees.'}
           </p>
         </div>
@@ -148,7 +158,10 @@ export default async function EventOverviewPage({
           <ul className="divide-y divide-black/5">
             {regs.map((r) => {
               const info = REG_STATUS[r.status]
-              const name = r.profile?.name ?? 'Unknown student'
+              const isGuest = !r.profile_id
+              const name =
+                r.profile?.name ?? r.guest?.name ?? 'Unknown student'
+              const department = r.profile?.department ?? r.guest?.department
               const initials = name
                 .split(' ')
                 .filter(Boolean)
@@ -176,12 +189,20 @@ export default async function EventOverviewPage({
 
                   {/* Name + meta */}
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold truncate">{name}</p>
+                    <p className="font-semibold truncate flex items-center gap-2">
+                      <span className="truncate">{name}</span>
+                      {isGuest && (
+                        <span
+                          className="inline-flex shrink-0 items-center rounded-full bg-peach/20 px-2 py-0.5 text-xs font-semibold text-[#c46a3c]"
+                          title="Registered from the public site — no account yet"
+                        >
+                          Guest
+                        </span>
+                      )}
+                    </p>
                     <p className="text-sm text-muted truncate">
-                      {r.profile?.student_id ?? '—'}
-                      {r.profile?.department
-                        ? ` · ${r.profile.department}`
-                        : ''}
+                      {r.student_id}
+                      {department ? ` · ${department}` : ''}
                       {` · ${info.label}`}
                     </p>
                   </div>
@@ -195,7 +216,10 @@ export default async function EventOverviewPage({
                     />
                     {/* Certificate control: only for attendees of a completed
                         event. Shows an "Issue" picker, or the issued badge. */}
-                    {canIssue && r.status === 'attended' && (
+                    {canIssue && r.status === 'attended' && isGuest && (
+                      <Pill tint="muted">Cert on sign-up</Pill>
+                    )}
+                    {canIssue && r.status === 'attended' && r.profile_id && (
                       <IssueCertificateControls
                         eventId={id}
                         profileId={r.profile_id}

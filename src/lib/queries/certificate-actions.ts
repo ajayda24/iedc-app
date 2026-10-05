@@ -129,9 +129,11 @@ export async function issueAllCertificatesAction(input: {
   ])
 
   const have = new Set((existing ?? []).map((c) => c.profile_id))
+  // Guest attendees (no account yet, profile_id NULL) are skipped — their
+  // participation certificate is issued when they sign up.
   const todo = (attendees ?? [])
-    .map((a) => a.profile_id)
-    .filter((id) => !have.has(id))
+    .map((a) => a.profile_id as string | null)
+    .filter((id): id is string => !!id && !have.has(id))
 
   if (todo.length === 0) {
     return { ok: true, issued: 0 }

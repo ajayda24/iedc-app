@@ -39,8 +39,8 @@ export default function UpcomingEvents() {
             Upcoming <span className="text-grad">events</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-ink-soft">
-            Workshops, hackathons and talks on the horizon. Sign in to register
-            in one tap.
+            Workshops, hackathons and talks on the horizon. Register with just
+            your student ID. No account needed.
           </p>
         </div>
 
@@ -78,7 +78,7 @@ export default function UpcomingEvents() {
         {events.length > 0 && (
           <div className="reveal mt-8 text-center">
             <Link
-              href="/dashboard/events"
+              href="/events"
               className="btn-ghost inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold"
             >
               View all events
@@ -95,7 +95,7 @@ function EventCard({ event: ev }: { event: PublicEvent }) {
   const chip = dateChip(ev.start_date)
   return (
     <Link
-      href="/dashboard/events"
+      href={`/events/${ev.id}`}
       className="group glass flex flex-col overflow-hidden rounded-3xl transition-transform duration-300 hover:-translate-y-1.5"
     >
       <div className="relative h-28 bg-gradient-to-br from-indigo/25 to-blue/20">

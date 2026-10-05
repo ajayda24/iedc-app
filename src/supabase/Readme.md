@@ -71,6 +71,15 @@ sent to the email on file.
 5. **`view-security.sql`** — `security_invoker` + role grants so views respect table RLS (run LAST, after the views exist)
 6. **`certificates-module.sql`** — adds `events.certificate_template`, `certificates.serial` (+ trigger/backfill), and the anon-readable `certificate_public` view for the public /certificates/[id] verify page. Certificates are code-designed (JSX templates), not uploaded files.
 
+7. **`migrations-dashboard.sql`** — coordinator/admin permission model (if not already applied)
+8. **`public-registrations.sql`** — guest registration from the public site: adds `event_registrations.student_id` + `source`, makes `profile_id` nullable, and a trigger that links guest registrations to the profile when the student signs up. Run LAST.
+
+### Public pages (no login)
+- `/events`, `/events/[id]` — browse events and register with student ID + roster email ([`src/lib/public/`](../lib/public/)).
+- `/certificates` — look up your registrations / pending certificates, verify a certificate code.
+
+Guest registrations live in `event_registrations` with `profile_id = NULL`. Staff see them on the event overview tagged **Guest** and can mark attendance as usual. Certificates need an account, so a guest who attended a completed event gets their participation certificate automatically when they sign up (`completeSignup`). Guests can't hold scores until they have an account.
+
 > **Always query the `students_current` and `profiles_current` views** for display —
 > they expose live `year`, `is_active`, `is_alumni`. The base `students`/`profiles`
 > tables only store the immutable `admission_year` anchor.

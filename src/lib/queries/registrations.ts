@@ -4,8 +4,10 @@ import 'server-only'
 // attendance marking is staff-only (enforced by RLS in rls.sql). Counters on
 // profiles auto-recompute via triggers when status changes.
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { getUser } from '@/lib/auth/queries'
 import type {
+  Department,
   EventRegistration,
   EventRow,
   Profile,
@@ -18,6 +20,9 @@ export type RegistrationWithProfile = EventRegistration & {
     Profile,
     'id' | 'name' | 'student_id' | 'department' | 'avatar'
   > | null
+  // Roster details for a guest registration (profile_id NULL) made from the
+  // public site. null for account registrations.
+  guest: { name: string | null; student_id: string; department: Department } | null
 }
 
 // A student's registration for one event, or null.
@@ -115,7 +120,30 @@ export async function listEventRegistrations(
     .eq('event_id', eventId)
     .order('registered_at', { ascending: true })
   if (error) throw error
-  return (data as RegistrationWithProfile[]) ?? []
+  const regs = ((data ?? []) as Omit<RegistrationWithProfile, 'guest'>[]).map(
+    (r) => ({ ...r, guest: null }) as RegistrationWithProfile
+  )
+
+  // Guests have no profile, and the roster isn't readable by coordinators, so
+  // resolve their names with the admin client. Only student_ids from rows the
+  // caller could already see (RLS above) are looked up.
+  const guestIds = regs.filter((r) => !r.profile_id).map((r) => r.student_id)
+  if (guestIds.length > 0) {
+    const admin = createAdminClient()
+    const { data: students } = await admin
+      .from('students')
+      .select('student_id, name, department')
+      .in('student_id', guestIds)
+    const byId = new Map(
+      ((students ?? []) as NonNullable<RegistrationWithProfile['guest']>[]).map(
+        (s) => [s.student_id, s]
+      )
+    )
+    for (const r of regs) {
+      if (!r.profile_id) r.guest = byId.get(r.student_id) ?? null
+    }
+  }
+  return regs
 }
 
 export async function markAttendance(
