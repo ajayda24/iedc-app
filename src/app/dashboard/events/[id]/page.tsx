@@ -16,6 +16,7 @@ import {
 import Icon from '@/components/landing/Icon'
 import EventRegisterButton from '@/components/dashboard/EventRegisterButton'
 import ShareEventButton from '@/components/dashboard/ShareEventButton'
+import PrizeBadge from '@/components/events/PrizeBadge'
 import { regStateFor } from '@/lib/events/reg-state'
 import { formatFee, paymentInfoFor } from '@/lib/events/upi'
 import { getProfile } from '@/lib/auth/queries'
@@ -111,6 +112,8 @@ export default async function EventDetailPage({
       <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
         {/* Main */}
         <div className="space-y-5 min-w-0">
+          <PrizeBadge event={event} variant="panel" />
+
           {event.description && (
             <Card>
               <h2 className="font-display font-semibold text-base mb-2">

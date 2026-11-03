@@ -92,6 +92,10 @@ export interface EventRow {
   fee_amount: number
   upi_id: string | null
   upi_payee_name: string | null
+  // Advertised cash prize in whole rupees (display only), shared by the top
+  // `prize_winners` places. null = no cash prize.
+  prize_pool: number | null
+  prize_winners: number | null
   created_by: string | null
   created_at: string
   updated_at: string

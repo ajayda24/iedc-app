@@ -15,6 +15,7 @@ import { getUser } from '@/lib/auth/queries'
 import type { RegState } from '@/lib/events/reg-state'
 import { APP_TIMEZONE } from '@/lib/time'
 import { formatFee } from '@/lib/events/upi'
+import PrizeBadge from '@/components/events/PrizeBadge'
 
 export const dynamic = 'force-dynamic'
 
@@ -166,6 +167,12 @@ export default async function PublicEventPage({ params }: Params) {
           <h1 className="mt-3 font-display text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
             {ev.title}
           </h1>
+
+          {!!ev.prize_pool && (
+            <div className="mt-4">
+              <PrizeBadge event={ev} variant="panel" />
+            </div>
+          )}
 
           {/* Key facts */}
           <dl className="mt-6 grid gap-4 sm:grid-cols-2">

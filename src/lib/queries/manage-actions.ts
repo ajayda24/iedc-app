@@ -83,6 +83,15 @@ function parseForm(fd: FormData): EventInput | string {
   if (paid && (!upiId || !UPI_ID_PATTERN.test(upiId)))
     return 'Enter a valid UPI ID (like name@okhdfcbank).'
 
+  // Optional cash prize (display only). Unchecking clears it.
+  const hasPrize = fd.get('has_prize') === 'on'
+  const prizePool = hasPrize ? int('prize_pool') : null
+  const prizeWinners = hasPrize ? int('prize_winners') : null
+  if (hasPrize && (!prizePool || prizePool <= 0))
+    return 'Enter a cash prize pool above ₹0.'
+  if (prizeWinners != null && (prizeWinners < 1 || prizeWinners > 20))
+    return 'Prize winners must be between 1 and 20.'
+
   return {
     title,
     description: text('description'),
@@ -100,6 +109,8 @@ function parseForm(fd: FormData): EventInput | string {
     fee_amount: fee,
     upi_id: upiId,
     upi_payee_name: paid ? text('upi_payee_name') : null,
+    prize_pool: prizePool,
+    prize_winners: prizeWinners,
     status,
   }
 }

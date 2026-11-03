@@ -15,6 +15,7 @@ import { dateChip, eventTime, CATEGORY_LABEL } from './format'
 import Icon from '@/components/landing/Icon'
 import EventRegisterButton from './EventRegisterButton'
 import ShareEventButton from './ShareEventButton'
+import PrizeBadge from '@/components/events/PrizeBadge'
 import { regStateFor } from '@/lib/events/reg-state'
 import { formatFee, paymentInfoFor } from '@/lib/events/upi'
 
@@ -201,6 +202,8 @@ function EventCard({
           <h3 className="font-display font-semibold leading-snug line-clamp-2 group-hover:text-indigo transition-colors">
             {ev.title}
           </h3>
+
+          <PrizeBadge event={ev} />
 
           <div className="space-y-1 text-sm text-muted">
             <p className="flex items-center gap-1.5">

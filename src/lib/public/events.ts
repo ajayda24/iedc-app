@@ -12,7 +12,7 @@ import type { EventCategory, EventRow } from '@/lib/supabase/database.types'
 import { regStateFor, type RegState } from '@/lib/events/reg-state'
 
 const PUBLIC_COLUMNS =
-  'id, title, description, banner, category, venue, start_date, end_date, registration_deadline, max_participants, points, benefit_attendance, benefit_certificate, benefit_activity_points, status, certificate_template, fee_amount, upi_id, upi_payee_name, created_at, updated_at'
+  'id, title, description, banner, category, venue, start_date, end_date, registration_deadline, max_participants, points, benefit_attendance, benefit_certificate, benefit_activity_points, status, certificate_template, fee_amount, upi_id, upi_payee_name, prize_pool, prize_winners, created_at, updated_at'
 
 // Statuses the public may see. Drafts are staff-only.
 const VISIBLE_STATUSES = ['published', 'completed', 'cancelled'] as const

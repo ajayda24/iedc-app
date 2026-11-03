@@ -3,6 +3,7 @@ import Icon from '@/components/landing/Icon'
 import { CATEGORY_LABEL, dateChip, eventTime } from '@/components/dashboard/format'
 import type { PublicEventCard as PublicEvent } from '@/lib/public/events'
 import EventStateBadge from './EventStateBadge'
+import PrizeBadge from '@/components/events/PrizeBadge'
 
 // Card for the public /events grid. Links to the public detail page, where
 // students can register with their student ID + email.
@@ -47,6 +48,8 @@ export default function PublicEventCard({ event: ev }: { event: PublicEvent }) {
           {ev.title}
         </h3>
 
+        <PrizeBadge event={ev} />
+
         <div className="space-y-1.5 text-sm text-ink-soft">
           <p className="flex items-center gap-2">
             <Icon name="clock" className="h-4 w-4 shrink-0 text-muted" />
@@ -66,7 +69,7 @@ export default function PublicEventCard({ event: ev }: { event: PublicEvent }) {
             {fewLeft
               ? `${ev.spotsLeft} spot${ev.spotsLeft === 1 ? '' : 's'} left`
               : ev.points > 0
-                ? `${ev.points} activity pts`
+                ? `${ev.points} IEDC pts`
                 : ''}
           </span>
         </div>

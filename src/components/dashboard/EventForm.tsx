@@ -38,6 +38,7 @@ export default function EventForm({ event }: { event?: EventRow }) {
   const [error, setError] = useState<string | null>(null)
   const [step, setStep] = useState(0)
   const [paid, setPaid] = useState((event?.fee_amount ?? 0) > 0)
+  const [hasPrize, setHasPrize] = useState(!!event?.prize_pool)
   const formRef = useRef<HTMLFormElement>(null)
   const editing = !!event
 
@@ -92,8 +93,8 @@ export default function EventForm({ event }: { event?: EventRow }) {
       if (res && !res.ok) {
         setError(res.error ?? 'Something went wrong.')
         // Send the user back to the step most likely holding the problem.
-        if (/title|category|fee|upi/i.test(res.error ?? ''))
-          setStep(/fee|upi/i.test(res.error ?? '') ? 2 : 0)
+        if (/title|category|fee|upi|prize/i.test(res.error ?? ''))
+          setStep(/fee|upi|prize/i.test(res.error ?? '') ? 2 : 0)
         else if (/date/i.test(res.error ?? '')) setStep(1)
       }
     })
@@ -273,6 +274,46 @@ export default function EventForm({ event }: { event?: EventRow }) {
             label="IEDC Points"
             defaultChecked={event?.benefit_activity_points ?? false}
           />
+        </fieldset>
+
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-medium text-ink-soft mb-1">
+            Cash prize
+          </legend>
+          <label className="flex items-center gap-2.5 text-sm">
+            <input
+              type="checkbox"
+              name="has_prize"
+              checked={hasPrize}
+              onChange={(e) => setHasPrize(e.target.checked)}
+              className="w-4 h-4 rounded accent-indigo"
+            />
+            Advertise a cash prize (highlighted on the event)
+          </label>
+          {/* Kept mounted when unchecked; ignored server-side unless checked. */}
+          <div className={hasPrize ? 'grid sm:grid-cols-2 gap-4' : 'hidden'}>
+            <Field label="Total prize pool (₹)" required>
+              <input
+                name="prize_pool"
+                type="number"
+                min={1}
+                defaultValue={event?.prize_pool ?? ''}
+                className={inputCls}
+                placeholder="e.g. 5000"
+              />
+            </Field>
+            <Field label="Shared by top">
+              <input
+                name="prize_winners"
+                type="number"
+                min={1}
+                max={20}
+                defaultValue={event?.prize_winners ?? ''}
+                className={inputCls}
+                placeholder="e.g. 3 (optional)"
+              />
+            </Field>
+          </div>
         </fieldset>
 
         <fieldset className="space-y-3">
