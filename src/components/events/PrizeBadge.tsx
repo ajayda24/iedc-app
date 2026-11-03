@@ -49,7 +49,8 @@ export default function PrizeBadge({
     <span className="inline-flex self-start max-w-full items-center gap-1.5 rounded-full border border-amber-300/70 bg-gradient-to-r from-amber-100 to-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800">
       <Icon name="trophy" className="w-3.5 h-3.5 shrink-0 text-amber-600" />
       <span className="truncate">
-        {amount} cash prize{who ? ` · ${who.replace('for the ', '')}` : ''}
+        {amount} cash prize
+        {winners ? ` · ${winners === 1 ? 'Winner' : `Top ${winners}`}` : ''}
       </span>
     </span>
   )
