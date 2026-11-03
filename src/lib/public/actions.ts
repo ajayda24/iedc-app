@@ -24,6 +24,7 @@ import type {
 } from '@/lib/supabase/database.types'
 import { getPublicEvent, isUuid } from './events'
 import { allowRequest } from './rate-limit'
+import { isValidUtr, normalizeUtr } from '@/lib/events/upi'
 
 export type PublicActionResult<T> =
   | { ok: true; data: T }
@@ -90,6 +91,8 @@ export async function registerGuestAction(input: {
   eventId: string
   studentId: string
   email: string
+  // UPI transaction ID, required for paid events.
+  paymentRef?: string
   // Honeypot: real users never see or fill this field.
   company?: string
 }): Promise<PublicActionResult<GuestRegistrationResult>> {
@@ -157,6 +160,22 @@ export async function registerGuestAction(input: {
     }
   }
 
+  // Paid events: proof of payment, verified by staff later.
+  const paymentRef =
+    event.fee_amount > 0 ? normalizeUtr(String(input.paymentRef ?? '')) : null
+  if (paymentRef !== null && !isValidUtr(paymentRef)) {
+    return { ok: false, error: 'Enter the 12-digit UPI transaction ID.' }
+  }
+  const payment = {
+    payment_ref: paymentRef,
+    payment_status: paymentRef ? 'pending' : 'not_required',
+    payment_verified_at: null,
+    payment_verified_by: null,
+  } as const
+  const usedRef = (msg: string) =>
+    /payment_ref/i.test(msg) && /duplicate|unique/i.test(msg)
+  const USED_REF = 'This transaction ID was already used for this event.'
+
   if (existing) {
     // Re-activate a previously cancelled registration.
     const { error } = await admin
@@ -165,9 +184,13 @@ export async function registerGuestAction(input: {
         status: 'registered',
         registered_at: new Date().toISOString(),
         profile_id: profileId,
+        ...payment,
       })
       .eq('id', existing.id)
-    if (error) return { ok: false, error: 'Could not register. Please try again.' }
+    if (error) {
+      if (usedRef(error.message)) return { ok: false, error: USED_REF }
+      return { ok: false, error: 'Could not register. Please try again.' }
+    }
   } else {
     const { error } = await admin.from('event_registrations').insert({
       event_id: event.id,
@@ -175,8 +198,10 @@ export async function registerGuestAction(input: {
       profile_id: profileId,
       status: 'registered',
       source: 'public',
+      ...payment,
     })
     if (error) {
+      if (usedRef(error.message)) return { ok: false, error: USED_REF }
       // Lost a race with a parallel submit: treat as already registered.
       if (/duplicate|unique/i.test(error.message)) {
         return { ok: true, data: { ...result, alreadyRegistered: true } }

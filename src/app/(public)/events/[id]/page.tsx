@@ -14,6 +14,7 @@ import { getPublicEvent, type PublicEventCard } from '@/lib/public/events'
 import { getUser } from '@/lib/auth/queries'
 import type { RegState } from '@/lib/events/reg-state'
 import { APP_TIMEZONE } from '@/lib/time'
+import { formatFee } from '@/lib/events/upi'
 
 export const dynamic = 'force-dynamic'
 
@@ -88,7 +89,7 @@ export default async function PublicEventPage({ params }: Params) {
     },
     (ev.benefit_activity_points || ev.points > 0) && {
       icon: 'trophy',
-      title: ev.points > 0 ? `${ev.points} activity points` : 'Activity points',
+      title: ev.points > 0 ? `${ev.points} IEDC Points` : 'IEDC Points',
       text: 'Counts toward the IEDC leaderboard',
     },
     ev.benefit_attendance && {
@@ -184,6 +185,11 @@ export default async function PublicEventPage({ params }: Params) {
               <Fact icon="bell" label="Register by">
                 {fullDate(ev.registration_deadline)},{' '}
                 {eventTime(ev.registration_deadline)}
+              </Fact>
+            )}
+            {ev.fee_amount > 0 && (
+              <Fact icon="gift" label="Registration fee">
+                {formatFee(ev.fee_amount)} · pay by UPI
               </Fact>
             )}
           </dl>
@@ -366,6 +372,15 @@ function RegistrationPanel({
         calendarUrl={calendarUrl}
         points={ev.points}
         hasCertificate={ev.benefit_certificate}
+        payment={
+          ev.fee_amount > 0 && ev.upi_id
+            ? {
+                fee: ev.fee_amount,
+                upiId: ev.upi_id,
+                payeeName: ev.upi_payee_name,
+              }
+            : null
+        }
       />
     )
   }

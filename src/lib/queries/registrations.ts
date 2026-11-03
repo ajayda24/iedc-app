@@ -10,6 +10,7 @@ import type {
   Department,
   EventRegistration,
   EventRow,
+  PaymentStatus,
   Profile,
   RegistrationStatus,
 } from '@/lib/supabase/database.types'
@@ -76,9 +77,11 @@ export async function listRegistrationsFor(
   return (data as (EventRegistration & { event: EventRow })[]) ?? []
 }
 
-// Register the current user for an event (RLS checks event is open).
+// Register the current user for an event (RLS checks event is open). Paid
+// events need the UPI transaction ID; the DB trigger sets payment_status.
 export async function registerForEvent(
-  eventId: string
+  eventId: string,
+  paymentRef?: string | null
 ): Promise<EventRegistration> {
   const user = await getUser()
   if (!user) throw new Error('Not authenticated')
@@ -86,7 +89,12 @@ export async function registerForEvent(
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('event_registrations')
-    .insert({ event_id: eventId, profile_id: user.id, status: 'registered' })
+    .insert({
+      event_id: eventId,
+      profile_id: user.id,
+      status: 'registered',
+      payment_ref: paymentRef ?? null,
+    })
     .select('*')
     .single()
   if (error) throw error
@@ -107,6 +115,24 @@ export async function cancelRegistration(eventId: string): Promise<void> {
   if (error) throw error
 }
 
+// Replace the current user's UPI transaction ID (e.g. after a rejection). The
+// DB trigger resets payment_status to 'pending' for re-verification.
+export async function resubmitPayment(
+  eventId: string,
+  paymentRef: string
+): Promise<void> {
+  const user = await getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('event_registrations')
+    .update({ payment_ref: paymentRef })
+    .eq('event_id', eventId)
+    .eq('profile_id', user.id)
+  if (error) throw error
+}
+
 // --- Staff: view all registrations for an event + mark attendance ----------
 export async function listEventRegistrations(
   eventId: string
@@ -115,7 +141,9 @@ export async function listEventRegistrations(
   const { data, error } = await supabase
     .from('event_registrations')
     .select(
-      '*, profile:profiles(id, name, student_id, department, avatar)'
+      // Explicit FK: payment_verified_by also references profiles, which
+      // makes a bare `profiles(...)` embed ambiguous (PGRST201).
+      '*, profile:profiles!event_registrations_profile_id_fkey(id, name, student_id, department, avatar)'
     )
     .eq('event_id', eventId)
     .order('registered_at', { ascending: true })
@@ -156,6 +184,26 @@ export async function markAttendance(
     .update({
       status,
       attendance_marked_at: new Date().toISOString(),
+    })
+    .eq('id', registrationId)
+  if (error) throw error
+}
+
+// Staff: record the outcome of checking a UTR against the payment history.
+// 'pending' undoes a previous decision.
+export async function markPayment(
+  registrationId: string,
+  status: Exclude<PaymentStatus, 'not_required'>
+): Promise<void> {
+  const user = await getUser()
+  const supabase = await createClient()
+  const verified = status === 'verified'
+  const { error } = await supabase
+    .from('event_registrations')
+    .update({
+      payment_status: status,
+      payment_verified_at: verified ? new Date().toISOString() : null,
+      payment_verified_by: verified ? (user?.id ?? null) : null,
     })
     .eq('id', registrationId)
   if (error) throw error

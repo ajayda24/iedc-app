@@ -23,6 +23,9 @@ export type CertificateType =
   | 'winner'
   | 'runnerup'
   | 'volunteer'
+// Payment proof for paid events (see paid-events.sql). 'not_required' for free
+// events.
+export type PaymentStatus = 'not_required' | 'pending' | 'verified' | 'rejected'
 export type NotificationTarget = 'all' | 'department' | 'year' | 'individual'
 
 export interface Student {
@@ -85,6 +88,10 @@ export interface EventRow {
   // Which code certificate template this event's certificates render with.
   // null -> app falls back to a category default, then 'aurora'.
   certificate_template: string | null
+  // Registration fee in whole rupees; 0 = free. Paid events require upi_id.
+  fee_amount: number
+  upi_id: string | null
+  upi_payee_name: string | null
   created_by: string | null
   created_at: string
   updated_at: string
@@ -102,6 +109,11 @@ export interface EventRegistration {
   status: RegistrationStatus
   registered_at: string
   attendance_marked_at: string | null
+  payment_status: PaymentStatus
+  // 12-digit UPI transaction ID (UTR) the student submitted.
+  payment_ref: string | null
+  payment_verified_at: string | null
+  payment_verified_by: string | null
 }
 
 export interface EventScore {

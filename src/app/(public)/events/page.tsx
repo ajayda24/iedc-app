@@ -70,7 +70,7 @@ export default async function PublicEventsPage({
           <p className="mt-4 max-w-xl text-ink-soft sm:text-lg">
             Register with your student ID and the email on your college record.
             No account needed. Create one later to collect your certificates and
-            activity points.
+            IEDC Points.
           </p>
 
           <dl className="mt-8 flex flex-wrap gap-x-10 gap-y-4">

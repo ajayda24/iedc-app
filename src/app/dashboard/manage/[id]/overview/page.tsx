@@ -11,6 +11,8 @@ import { fullDate, eventTime, REG_STATUS } from '@/components/dashboard/format'
 import type { CertificateType } from '@/lib/supabase/database.types'
 import Icon from '@/components/landing/Icon'
 import AttendanceControls from '@/components/dashboard/AttendanceControls'
+import PaymentControls from '@/components/dashboard/PaymentControls'
+import { formatFee } from '@/lib/events/upi'
 import IssueCertificateControls from '@/components/dashboard/IssueCertificateControls'
 import IssueAllCertificatesButton from '@/components/dashboard/IssueAllCertificatesButton'
 import EventOverviewActions from '@/components/dashboard/EventOverviewActions'
@@ -59,6 +61,12 @@ export default async function EventOverviewPage({
   ).length
   const guestCount = active.filter((r) => !r.profile_id).length
 
+  // Paid events: how many active registrants still need a payment check.
+  const isPaid = event.fee_amount > 0
+  const paidCount = active.filter((r) => r.payment_status === 'verified').length
+  const toVerify = active.filter((r) => r.payment_status === 'pending').length
+  const unpaid = active.length - paidCount - toVerify
+
   return (
     <div className="space-y-5">
       {/* Back + heading + edit/delete shortcuts */}
@@ -80,7 +88,11 @@ export default async function EventOverviewPage({
               {event.venue ? ` · ${event.venue}` : ''}
             </p>
           </div>
-          <EventOverviewActions eventId={id} title={event.title} />
+          <EventOverviewActions
+            eventId={id}
+            title={event.title}
+            status={event.status}
+          />
         </div>
       </div>
 
@@ -101,6 +113,31 @@ export default async function EventOverviewPage({
           tint="blue"
         />
       </div>
+
+      {/* Payments (paid events only) */}
+      {isPaid && (
+        <Card className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h2 className="flex items-center gap-2 font-display font-semibold">
+              <Icon name="gift" className="w-5 h-5 text-indigo" />
+              Payments · {formatFee(event.fee_amount)}
+            </h2>
+            <p className="text-sm text-muted mt-0.5">
+              Match each transaction ID against the UPI history of{' '}
+              <span className="font-medium text-ink-soft">
+                {event.upi_payee_name ?? event.upi_id}
+              </span>{' '}
+              ({event.upi_id}), then Verify or Reject. Cash collected at the
+              door can be marked Verified too.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 shrink-0">
+            <Pill tint="mint">{paidCount} paid</Pill>
+            <Pill tint="indigo">{toVerify} to verify</Pill>
+            {unpaid > 0 && <Pill tint="peach">{unpaid} unpaid</Pill>}
+          </div>
+        </Card>
+      )}
 
       {/* Certificate issuance */}
       <Card className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -209,6 +246,14 @@ export default async function EventOverviewPage({
 
                   {/* Attendance + certificate controls */}
                   <div className="w-full sm:w-auto flex flex-wrap items-center justify-end gap-3 shrink-0">
+                    {isPaid && r.status !== 'cancelled' && (
+                      <PaymentControls
+                        registrationId={r.id}
+                        eventId={id}
+                        status={r.payment_status}
+                        paymentRef={r.payment_ref}
+                      />
+                    )}
                     <AttendanceControls
                       registrationId={r.id}
                       eventId={id}

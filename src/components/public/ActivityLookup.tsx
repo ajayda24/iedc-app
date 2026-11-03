@@ -152,7 +152,7 @@ function Results({ result }: { result: ActivityResult }) {
               </p>
               <p className="mt-1 text-sm text-ink-soft">
                 {result.points > 0
-                  ? `Plus ${result.points} activity points. `
+                  ? `Plus ${result.points} IEDC Points. `
                   : ''}
                 Everything above moves into your account the moment you sign up.
               </p>

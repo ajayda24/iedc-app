@@ -72,7 +72,8 @@ sent to the email on file.
 6. **`certificates-module.sql`** — adds `events.certificate_template`, `certificates.serial` (+ trigger/backfill), and the anon-readable `certificate_public` view for the public /certificates/[id] verify page. Certificates are code-designed (JSX templates), not uploaded files.
 
 7. **`migrations-dashboard.sql`** — coordinator/admin permission model (if not already applied)
-8. **`public-registrations.sql`** — guest registration from the public site: adds `event_registrations.student_id` + `source`, makes `profile_id` nullable, and a trigger that links guest registrations to the profile when the student signs up. Run LAST.
+8. **`public-registrations.sql`** — guest registration from the public site: adds `event_registrations.student_id` + `source`, makes `profile_id` nullable, and a trigger that links guest registrations to the profile when the student signs up.
+9. **`paid-events.sql`** — paid events without a gateway: `events.fee_amount` / `upi_id` / `upi_payee_name`, and `event_registrations.payment_status` / `payment_ref` (UPI transaction ID) / `payment_verified_*`, plus a trigger so only staff can verify payments. Run LAST, before deploying the app code that uses it.
 
 ### Public pages (no login)
 - `/events`, `/events/[id]` — browse events and register with student ID + roster email ([`src/lib/public/`](../lib/public/)).

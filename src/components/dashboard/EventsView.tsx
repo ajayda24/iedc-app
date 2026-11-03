@@ -6,6 +6,7 @@ import useSWR from 'swr'
 import type {
   EventRow,
   EventCategory,
+  PaymentStatus,
   RegistrationStatus,
 } from '@/lib/supabase/database.types'
 import type { EventsPayload } from '@/app/api/events/route'
@@ -13,7 +14,9 @@ import { Card, Pill, EmptyState } from './ui'
 import { dateChip, eventTime, CATEGORY_LABEL } from './format'
 import Icon from '@/components/landing/Icon'
 import EventRegisterButton from './EventRegisterButton'
+import ShareEventButton from './ShareEventButton'
 import { regStateFor } from '@/lib/events/reg-state'
+import { formatFee, paymentInfoFor } from '@/lib/events/upi'
 
 // Client events page. Fetches ALL events once via SWR (cached, background-
 // revalidated) and applies the time + category filters client-side, so the
@@ -54,6 +57,8 @@ export default function EventsView() {
 
   const events = data?.events ?? []
   const myStatus = data?.myStatus ?? {}
+  const myPayment = data?.myPayment ?? {}
+  const studentId = data?.studentId ?? null
   const counts = data?.counts ?? {}
 
   // Active (non-cancelled) registrations → "My Events" set.
@@ -136,6 +141,8 @@ export default function EventsView() {
               event={ev}
               registered={counts[ev.id] ?? 0}
               myStatus={myStatus[ev.id]}
+              myPayment={myPayment[ev.id]}
+              studentId={studentId}
             />
           ))}
         </div>
@@ -150,10 +157,14 @@ function EventCard({
   event: ev,
   registered,
   myStatus,
+  myPayment,
+  studentId,
 }: {
   event: EventRow
   registered: number
   myStatus?: RegistrationStatus
+  myPayment?: PaymentStatus
+  studentId: string | null
 }) {
   const chip = dateChip(ev.start_date)
   const spotsLeft =
@@ -198,6 +209,11 @@ function EventCard({
               {ev.venue ? ` · ${ev.venue}` : ''}
             </p>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              {ev.fee_amount > 0 && (
+                <span className="font-semibold text-ink-soft">
+                  {formatFee(ev.fee_amount)}
+                </span>
+              )}
               {ev.points > 0 && (
                 <span className="flex items-center gap-1.5">
                   <Icon name="spark" className="w-4 h-4 text-peach shrink-0" />
@@ -220,8 +236,19 @@ function EventCard({
         </div>
       </Link>
 
-      <div className="px-4 pb-4">
-        <EventRegisterButton eventId={ev.id} state={state} />
+      <div className="px-4 pb-4 flex items-start gap-2">
+        <div className="flex-1 min-w-0">
+          <EventRegisterButton
+            eventId={ev.id}
+            state={state}
+            payment={paymentInfoFor(ev, studentId, myPayment)}
+          />
+        </div>
+        {ev.status !== 'draft' && (
+          <div className="pt-1">
+            <ShareEventButton eventId={ev.id} title={ev.title} />
+          </div>
+        )}
       </div>
     </div>
   )

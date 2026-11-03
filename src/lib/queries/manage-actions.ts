@@ -13,12 +13,13 @@ import {
   getEvent,
   type EventInput,
 } from './events'
-import { markAttendance } from './registrations'
+import { markAttendance, markPayment } from './registrations'
 import { createClient } from '@/lib/supabase/server'
 import { appLocalToISO } from '@/lib/time'
 import type {
   EventCategory,
   EventStatus,
+  PaymentStatus,
   RegistrationStatus,
 } from '@/lib/supabase/database.types'
 
@@ -31,6 +32,7 @@ const CATEGORIES: EventCategory[] = [
   'meeting',
 ]
 const STATUSES: EventStatus[] = ['draft', 'published', 'completed', 'cancelled']
+const UPI_ID_PATTERN = /^[\w.-]{2,}@[a-zA-Z][\w]{1,}$/
 
 export interface ActionResult {
   ok: boolean
@@ -73,6 +75,14 @@ function parseForm(fd: FormData): EventInput | string {
   const start = appLocalToISO(startDate)
   if (end && end < start) return 'End date must be after the start date.'
 
+  // Paid events: fee + the UPI ID students pay. Unchecking "paid" clears them.
+  const paid = fd.get('paid') === 'on'
+  const fee = paid ? (int('fee_amount') ?? 0) : 0
+  const upiId = paid ? text('upi_id') : null
+  if (paid && fee <= 0) return 'Enter a registration fee above ₹0.'
+  if (paid && (!upiId || !UPI_ID_PATTERN.test(upiId)))
+    return 'Enter a valid UPI ID (like name@okhdfcbank).'
+
   return {
     title,
     description: text('description'),
@@ -87,6 +97,9 @@ function parseForm(fd: FormData): EventInput | string {
     benefit_attendance: fd.get('benefit_attendance') === 'on',
     benefit_certificate: fd.get('benefit_certificate') === 'on',
     benefit_activity_points: fd.get('benefit_activity_points') === 'on',
+    fee_amount: fee,
+    upi_id: upiId,
+    upi_payee_name: paid ? text('upi_payee_name') : null,
     status,
   }
 }
@@ -201,6 +214,38 @@ export async function markAttendanceAction(
     }
   }
 
+  revalidatePath(`/dashboard/manage/${eventId}/overview`)
+  return { ok: true }
+}
+
+// Record a payment check for one registration of a paid event: 'verified' once
+// the UTR is found in the receiver's UPI history (or cash was collected at the
+// door), 'rejected' if it isn't, or back to 'pending' to undo.
+export async function markPaymentAction(
+  registrationId: string,
+  eventId: string,
+  status: Exclude<PaymentStatus, 'not_required'>
+): Promise<ActionResult> {
+  await requireStaff()
+  if (!['pending', 'verified', 'rejected'].includes(status)) {
+    return { ok: false, error: 'Invalid payment status.' }
+  }
+
+  const supabase = await createClient()
+  const { data: reg } = await supabase
+    .from('event_registrations')
+    .select('event_id')
+    .eq('id', registrationId)
+    .maybeSingle()
+  if (!reg || reg.event_id !== eventId) {
+    return { ok: false, error: 'Registration not found.' }
+  }
+
+  try {
+    await markPayment(registrationId, status)
+  } catch {
+    return { ok: false, error: 'Could not update payment.' }
+  }
   revalidatePath(`/dashboard/manage/${eventId}/overview`)
   return { ok: true }
 }

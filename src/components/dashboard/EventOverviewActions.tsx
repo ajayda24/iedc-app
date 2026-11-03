@@ -6,16 +6,21 @@ import Link from 'next/link'
 import Icon from '@/components/landing/Icon'
 import { deleteEventAction } from '@/lib/queries/manage-actions'
 import ConfirmDialog from './ConfirmDialog'
+import ShareEventButton from './ShareEventButton'
+import type { EventStatus } from '@/lib/supabase/database.types'
 
-// Header shortcuts on the event overview page: edit link + delete button.
+// Header shortcuts on the event overview page: share (non-drafts), edit link
+// + delete button.
 // Delete confirms, then redirects back to the manage list (the event no longer
 // exists, so staying on its overview would 404).
 export default function EventOverviewActions({
   eventId,
   title,
+  status,
 }: {
   eventId: string
   title: string
+  status: EventStatus
 }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
@@ -37,6 +42,13 @@ export default function EventOverviewActions({
 
   return (
     <div className="flex items-center gap-2">
+      {status !== 'draft' && (
+        <ShareEventButton
+          eventId={eventId}
+          title={title}
+          variant="button"
+        />
+      )}
       <Link
         href={`/dashboard/manage/${eventId}/edit`}
         className="inline-flex items-center gap-1.5 rounded-2xl border border-black/10 bg-white/70 text-sm font-semibold text-ink-soft px-3.5 py-2 hover:bg-white transition-colors"

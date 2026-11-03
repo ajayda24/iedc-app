@@ -7,28 +7,34 @@ import {
   registerGuestAction,
   type GuestRegistrationResult,
 } from '@/lib/public/actions'
+import UpiPayPanel from '@/components/events/UpiPayPanel'
+import { isValidUtr } from '@/lib/events/upi'
 
 // Public event registration: student ID + roster email, no account required.
 // On success shows a confirmation with an add-to-calendar link and, for
-// students without an account, the case for creating one.
+// students without an account, the case for creating one. Paid events add a
+// UPI pay step and require the transaction ID before submitting.
 export default function GuestRegisterForm({
   eventId,
   eventTitle,
   calendarUrl,
   points,
   hasCertificate,
+  payment,
 }: {
   eventId: string
   eventTitle: string
   calendarUrl: string
   points: number
   hasCertificate: boolean
+  payment?: { fee: number; upiId: string; payeeName: string | null } | null
 }) {
   const ids = useId()
   const [pending, startTransition] = useTransition()
   const [studentId, setStudentId] = useState('')
   const [email, setEmail] = useState('')
   const [company, setCompany] = useState('') // honeypot
+  const [utr, setUtr] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState<GuestRegistrationResult | null>(null)
 
@@ -36,7 +42,13 @@ export default function GuestRegisterForm({
     e.preventDefault()
     setError(null)
     startTransition(async () => {
-      const res = await registerGuestAction({ eventId, studentId, email, company })
+      const res = await registerGuestAction({
+        eventId,
+        studentId,
+        email,
+        paymentRef: payment ? utr : undefined,
+        company,
+      })
       if (!res.ok) {
         setError(res.error)
         return
@@ -57,6 +69,7 @@ export default function GuestRegisterForm({
         calendarUrl={calendarUrl}
         points={points}
         hasCertificate={hasCertificate}
+        paid={!!payment}
       />
     )
   }
@@ -101,6 +114,18 @@ export default function GuestRegisterForm({
         </p>
       </div>
 
+      {payment && (
+        <UpiPayPanel
+          fee={payment.fee}
+          upiId={payment.upiId}
+          payeeName={payment.payeeName}
+          eventTitle={eventTitle}
+          studentId={studentId.trim().toUpperCase() || null}
+          utr={utr}
+          onUtrChange={setUtr}
+        />
+      )}
+
       {/* Honeypot — hidden from people and assistive tech. */}
       <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
         <label>
@@ -126,7 +151,12 @@ export default function GuestRegisterForm({
 
       <button
         type="submit"
-        disabled={pending || !studentId.trim() || !email.trim()}
+        disabled={
+          pending ||
+          !studentId.trim() ||
+          !email.trim() ||
+          (!!payment && !isValidUtr(utr))
+        }
         className="btn-primary flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold disabled:pointer-events-none disabled:opacity-60"
       >
         {pending ? (
@@ -162,6 +192,7 @@ function Confirmation({
   calendarUrl,
   points,
   hasCertificate,
+  paid,
 }: {
   result: GuestRegistrationResult
   studentId: string
@@ -169,6 +200,7 @@ function Confirmation({
   calendarUrl: string
   points: number
   hasCertificate: boolean
+  paid: boolean
 }) {
   const greeting = result.firstName ? `, ${result.firstName}` : ''
   return (
@@ -183,7 +215,9 @@ function Confirmation({
         <p className="mt-1 text-sm text-ink-soft">
           {result.alreadyRegistered
             ? `Your seat for ${eventTitle} is already saved.`
-            : `Your seat for ${eventTitle} is confirmed. Bring your student ID card.`}
+            : paid
+              ? `Your seat for ${eventTitle} is reserved. We'll verify your payment before the event — bring your student ID card.`
+              : `Your seat for ${eventTitle} is confirmed. Bring your student ID card.`}
         </p>
       </div>
 
@@ -220,7 +254,7 @@ function Confirmation({
             {points > 0 && (
               <li className="flex items-center gap-2">
                 <Icon name="trophy" className="h-4 w-4 shrink-0 text-indigo" />
-                {points} activity points on the leaderboard
+                {points} IEDC Points on the leaderboard
               </li>
             )}
             <li className="flex items-center gap-2">

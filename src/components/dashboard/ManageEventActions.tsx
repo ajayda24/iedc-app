@@ -9,6 +9,7 @@ import {
   deleteEventAction,
 } from '@/lib/queries/manage-actions'
 import ConfirmDialog from './ConfirmDialog'
+import ShareEventButton from './ShareEventButton'
 import type { EventStatus } from '@/lib/supabase/database.types'
 
 // Row actions for a managed event: edit link, a primary status transition, and
@@ -90,6 +91,7 @@ export default function ManageEventActions({
         </ActionButton>
       )}
 
+      {status !== 'draft' && <ShareEventButton eventId={eventId} title={title} />}
       <Link
         href={`/dashboard/manage/${eventId}/overview`}
         aria-label="View event overview"

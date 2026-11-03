@@ -15,7 +15,10 @@ import {
 } from '@/components/dashboard/format'
 import Icon from '@/components/landing/Icon'
 import EventRegisterButton from '@/components/dashboard/EventRegisterButton'
+import ShareEventButton from '@/components/dashboard/ShareEventButton'
 import { regStateFor } from '@/lib/events/reg-state'
+import { formatFee, paymentInfoFor } from '@/lib/events/upi'
+import { getProfile } from '@/lib/auth/queries'
 
 export default async function EventDetailPage({
   params,
@@ -26,9 +29,10 @@ export default async function EventDetailPage({
   const event = await getEvent(id)
   if (!event) notFound()
 
-  const [myReg, counts] = await Promise.all([
+  const [myReg, counts, profile] = await Promise.all([
     getMyRegistration(id),
     countRegistrationsByEvent([id]),
+    getProfile(),
   ])
 
   const registered = counts[id] ?? 0
@@ -51,7 +55,7 @@ export default async function EventDetailPage({
     event.benefit_activity_points && {
       icon: 'spark',
       tint: 'peach' as const,
-      label: 'Activity points',
+      label: 'IEDC Points',
     },
   ].filter(Boolean) as { icon: string; tint: 'indigo' | 'mint' | 'peach'; label: string }[]
 
@@ -59,14 +63,23 @@ export default async function EventDetailPage({
 
   return (
     <div className="space-y-5">
-      {/* Back */}
-      <Link
-        href="/dashboard/events"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-indigo transition-colors"
-      >
-        <Icon name="arrow" className="w-4 h-4 rotate-180" />
-        Back to events
-      </Link>
+      {/* Back + share */}
+      <div className="flex items-center justify-between gap-3">
+        <Link
+          href="/dashboard/events"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-indigo transition-colors"
+        >
+          <Icon name="arrow" className="w-4 h-4 rotate-180" />
+          Back to events
+        </Link>
+        {event.status !== 'draft' && (
+          <ShareEventButton
+            eventId={event.id}
+            title={event.title}
+            variant="button"
+          />
+        )}
+      </div>
 
       {/* Banner hero */}
       <div className="relative rounded-3xl overflow-hidden h-48 sm:h-64 bg-gradient-to-br from-indigo/25 to-blue/20">
@@ -170,6 +183,11 @@ export default async function EventDetailPage({
             )}
 
             <div className="space-y-3 mb-4">
+              {event.fee_amount > 0 && (
+                <StatRow icon="gift" tint="indigo" label="Registration fee">
+                  {formatFee(event.fee_amount)}
+                </StatRow>
+              )}
               {event.points > 0 && (
                 <StatRow icon="spark" tint="peach" label="Points">
                   {event.points} pts
@@ -192,7 +210,15 @@ export default async function EventDetailPage({
               )}
             </div>
 
-            <EventRegisterButton eventId={event.id} state={state} />
+            <EventRegisterButton
+              eventId={event.id}
+              state={state}
+              payment={paymentInfoFor(
+                event,
+                profile?.student_id ?? null,
+                myReg?.payment_status
+              )}
+            />
           </Card>
         </aside>
       </div>

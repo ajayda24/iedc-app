@@ -37,6 +37,7 @@ export default function EventForm({ event }: { event?: EventRow }) {
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [step, setStep] = useState(0)
+  const [paid, setPaid] = useState((event?.fee_amount ?? 0) > 0)
   const formRef = useRef<HTMLFormElement>(null)
   const editing = !!event
 
@@ -91,7 +92,8 @@ export default function EventForm({ event }: { event?: EventRow }) {
       if (res && !res.ok) {
         setError(res.error ?? 'Something went wrong.')
         // Send the user back to the step most likely holding the problem.
-        if (/title|category/i.test(res.error ?? '')) setStep(0)
+        if (/title|category|fee|upi/i.test(res.error ?? ''))
+          setStep(/fee|upi/i.test(res.error ?? '') ? 2 : 0)
         else if (/date/i.test(res.error ?? '')) setStep(1)
       }
     })
@@ -268,9 +270,57 @@ export default function EventForm({ event }: { event?: EventRow }) {
           />
           <Checkbox
             name="benefit_activity_points"
-            label="Activity points"
+            label="IEDC Points"
             defaultChecked={event?.benefit_activity_points ?? false}
           />
+        </fieldset>
+
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-medium text-ink-soft mb-1">
+            Registration fee
+          </legend>
+          <label className="flex items-center gap-2.5 text-sm">
+            <input
+              type="checkbox"
+              name="paid"
+              checked={paid}
+              onChange={(e) => setPaid(e.target.checked)}
+              className="w-4 h-4 rounded accent-indigo"
+            />
+            Paid event (students pay by UPI and submit the transaction ID)
+          </label>
+          {/* Kept mounted when unchecked so edits aren't lost on toggle; the
+              server ignores these fields unless "paid" is on. */}
+          <div className={paid ? 'grid sm:grid-cols-3 gap-4' : 'hidden'}>
+            <Field label="Fee (₹)" required>
+              <input
+                name="fee_amount"
+                type="number"
+                min={1}
+                defaultValue={event?.fee_amount || ''}
+                className={inputCls}
+                placeholder="e.g. 50"
+              />
+            </Field>
+            <Field label="UPI ID" required>
+              <input
+                name="upi_id"
+                defaultValue={event?.upi_id ?? ''}
+                className={inputCls}
+                placeholder="name@okhdfcbank"
+                autoComplete="off"
+                spellCheck={false}
+              />
+            </Field>
+            <Field label="Payee name">
+              <input
+                name="upi_payee_name"
+                defaultValue={event?.upi_payee_name ?? ''}
+                className={inputCls}
+                placeholder="Name on the UPI account"
+              />
+            </Field>
+          </div>
         </fieldset>
       </div>
 
