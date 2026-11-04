@@ -129,7 +129,7 @@ export const TEAM: TeamMember[] = [
     lead: true,
   },
   {
-    name: "Gokul",
+    name: "Gokul Vijay V",
     position: "Nodal Officer",
     profile_image: "/team/nodal_officer2.png",
     tint: "var(--lavender)",
