@@ -123,9 +123,16 @@ export type TeamMember = {
 export const TEAM: TeamMember[] = [
   {
     name: "Chithra V",
-    position: "IEDC Tutor Coordinator",
+    position: "Nodal Officer",
     profile_image: "/team/nodal_officer.jpg",
     tint: "var(--indigo)",
+    lead: true,
+  },
+  {
+    name: "Gokul",
+    position: "Nodal Officer",
+    profile_image: "/team/nodal_officer2.png",
+    tint: "var(--lavender)",
     lead: true,
   },
   {

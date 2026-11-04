@@ -16,7 +16,7 @@ export default function Community() {
           Meet the <span className="text-grad">IEDC Team</span>
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-ink-soft">
-          The students and mentor driving the innovation engine. Drag, swipe or
+          The students and mentors driving the innovation engine. Drag, swipe or
           just watch them roll by.
         </p>
       </div>
